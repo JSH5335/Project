@@ -1,0 +1,211 @@
+@charset "UTF-8";
+
+/* ===============================
+   WRITE PAGE
+=============================== */
+
+.write-container {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 56px 0 120px;
+    background: none;
+}
+
+/* ===== HEADER ===== */
+
+.write-header {
+    margin-bottom: 36px;
+}
+
+.write-title {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    letter-spacing: -0.6px;
+}
+
+.write-desc {
+    font-size: 15px;
+    color: var(--text-sub);
+}
+
+/* ===== CARD ===== */
+
+.write-card {
+    background: var(--bg-card);
+    border-radius: 18px;
+    padding: 44px;
+    box-shadow: 0 18px 46px rgba(15, 23, 42, 0.10);
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+}
+
+body.dark .write-card {
+    box-shadow:
+        0 24px 60px rgba(0,0,0,0.65),
+        inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+/* ===== INPUT ===== */
+
+.write-input {
+    width: 100%;
+    padding: 16px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 14px;
+    border: 1px solid rgba(148,163,184,0.35);
+    background: var(--bg-card);
+    color: var(--text-main);
+    outline: none;
+    transition: border .2s ease, box-shadow .2s ease;
+}
+
+.write-input::placeholder {
+    color: #94a3b8;
+}
+
+body.dark .write-input::placeholder {
+    color: #64748b;
+}
+
+.write-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.15);
+}
+
+body.dark .write-input {
+    background: #020617;
+    border-color: rgba(255,255,255,0.12);
+}
+
+/* ===== TEXTAREA ===== */
+
+.write-textarea {
+    width: 100%;
+    min-height: 340px;
+    padding: 18px;
+    font-size: 16px;
+    line-height: 1.75;
+    border-radius: 16px;
+    border: 1px solid rgba(148,163,184,0.35);
+    background: var(--bg-card);
+    color: var(--text-main);
+    resize: vertical;
+    outline: none;
+    transition: border .2s ease, box-shadow .2s ease;
+}
+
+.write-textarea::placeholder {
+    color: #94a3b8;
+}
+
+body.dark .write-textarea::placeholder {
+    color: #64748b;
+}
+
+.write-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.15);
+}
+
+body.dark .write-textarea {
+    background: #020617;
+    border-color: rgba(255,255,255,0.12);
+}
+
+/* ===== ACTIONS ===== */
+
+.write-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 24px;
+    padding-top: 22px;
+    border-top: 1px solid rgba(148,163,184,0.35);
+}
+
+body.dark .write-actions {
+    border-top-color: rgba(255,255,255,0.12);
+}
+
+.write-btn {
+    padding: 14px 32px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 15px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+/* 등록 */
+.write-btn.submit {
+    background: linear-gradient(
+        135deg,
+        var(--primary),
+        var(--primary-hover)
+    );
+    color: #020617;
+    box-shadow: 0 12px 30px rgba(56,189,248,0.45);
+}
+
+.write-btn.submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(56,189,248,0.6);
+}
+
+/* 취소 */
+.write-btn.cancel {
+    background: rgba(148,163,184,0.18);
+    color: var(--text-main);
+}
+
+.write-btn.cancel:hover {
+    background: rgba(148,163,184,0.28);
+}
+
+/* ===== MOBILE ===== */
+
+@media (max-width: 640px) {
+
+    .write-container {
+        padding: 40px 0 80px;
+    }
+
+    .write-title {
+        font-size: 26px;
+    }
+
+    .write-card {
+        padding: 28px;
+    }
+
+    .write-textarea {
+        min-height: 240px;
+    }
+
+    .write-actions {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+    
+/* ==================================================
+   🔥 WRITE PAGE - Dark mode text fix (강제)
+================================================== */
+
+body.dark .write-input,
+body.dark .write-textarea {
+    color: #e5e7eb !important;      /* 입력 글자 */
+    caret-color: #e5e7eb;           /* 커서 */
+}
+
+body.dark .write-input::selection,
+body.dark .write-textarea::selection {
+    background: rgba(56,189,248,0.35);
+    color: #ffffff;
+}
+}

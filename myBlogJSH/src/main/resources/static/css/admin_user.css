@@ -1,0 +1,171 @@
+@charset "UTF-8";
+
+/* ===============================
+   👥 회원 관리 전용 스타일
+================================ */
+
+/* ADMIN 행 강조 */
+.admin-row {
+    background: linear-gradient(
+        90deg,
+        rgba(239,68,68,0.08),
+        transparent
+    );
+}
+
+.admin-row:hover {
+    background: linear-gradient(
+        90deg,
+        rgba(239,68,68,0.14),
+        transparent
+    );
+}
+
+/* 왕관 */
+.admin-crown {
+    margin-right: 6px;
+}
+
+/* 권한 뱃지 */
+.role-admin {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.role-user {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #e5e7eb;
+    color: #374151;
+}
+
+/* 본인 표시 */
+.self-label {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 10px;
+    background: #e0f2fe;
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+/* ===============================
+   🔥 관리 컬럼 버튼 가로 정렬 (추가)
+================================ */
+
+/* 관리(td) 안의 모든 form 가로 정렬 */
+.admin-table td:last-child {
+    white-space: nowrap;
+}
+
+.admin-table td:last-child .inline-form {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 6px;
+}
+
+/* 마지막 버튼 여백 제거 */
+.admin-table td:last-child .inline-form:last-child {
+    margin-right: 0;
+}
+
+/* ===============================
+   관리자 버튼
+================================ */
+
+.btn-admin-add {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    background: #fee2e2;
+    color: #b91c1c;
+    transition: 0.2s;
+}
+
+.btn-admin-add:hover {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(239,68,68,0.4);
+}
+
+/* 관리자 해제 */
+.btn-admin-remove {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    background: #e5e7eb;
+    color: #374151;
+    transition: 0.2s;
+}
+
+.btn-admin-remove:hover {
+    background: #9ca3af;
+    color: #ffffff;
+}
+
+/* ===============================
+   회원 정지 / 해제 버튼
+================================ */
+
+.btn-ban {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    background: #f87171;
+    color: #ffffff;
+    transition: 0.2s;
+}
+
+.btn-ban:hover {
+    background: #ef4444;
+    box-shadow: 0 6px 16px rgba(239,68,68,0.4);
+}
+
+.btn-unban {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    background: #34d399;
+    color: #ffffff;
+    transition: 0.2s;
+}
+
+.btn-unban:hover {
+    background: #10b981;
+    box-shadow: 0 6px 16px rgba(16,185,129,0.4);
+}
+
+/* ===============================
+   상태 표시
+================================ */
+
+.status-banned {
+    color: #f87171;
+    font-weight: bold;
+}
+
+.status-active {
+    color: #10b981;
+    font-weight: bold;
+}

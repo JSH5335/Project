@@ -1,0 +1,367 @@
+@charset "UTF-8";
+
+/* ===============================
+   ARCHIVE 공통
+=============================== */
+
+.archive-container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 20px 0 60px;
+}
+
+.archive-title {
+    font-size: 32px;
+    font-weight: 900;
+    margin-bottom: 4px;
+    color: var(--text-main);
+    letter-spacing: -0.5px;
+}
+
+/* ===============================
+   ARCHIVE HEADER
+=============================== */
+
+.archive-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.archive-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.archive-icon {
+    font-size: 28px;
+}
+
+.archive-desc {
+    font-size: 14px;
+    color: var(--text-sub);
+}
+
+.archive-desc b {
+    color: var(--primary);
+}
+
+/* ===============================
+   🔍 ARCHIVE 검색 바
+=============================== */
+
+.archive-search-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+
+    margin: 26px auto 18px;
+    padding: 16px 20px;
+
+    background: var(--bg-card);
+    border-radius: 18px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+
+    max-width: 520px;
+}
+
+.archive-search-input {
+    flex: 1;
+    height: 42px;
+    padding: 0 14px;
+
+    border-radius: 12px;
+    border: 1px solid rgba(148,163,184,0.35);
+
+    font-size: 14px;
+    color: var(--text-main);
+    background: transparent;
+
+    transition: border .2s, box-shadow .2s;
+}
+
+.archive-search-input::placeholder {
+    color: var(--text-sub);
+}
+
+.archive-search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.25);
+}
+
+.archive-sort-select {
+    height: 42px;
+    padding: 0 12px;
+
+    border-radius: 12px;
+    border: 1px solid rgba(148,163,184,0.35);
+    background: transparent;
+
+    font-size: 13px;
+    color: var(--text-main);
+    cursor: pointer;
+}
+
+.archive-search-btn {
+    height: 42px;
+    padding: 0 18px;
+
+    border-radius: 12px;
+    border: none;
+
+    font-size: 14px;
+    font-weight: 800;
+
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: #020617;
+
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+}
+
+.archive-search-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(56,189,248,0.45);
+}
+
+/* ===============================
+   ARCHIVE 목록
+=============================== */
+
+.archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.archive-item {
+    position: relative;
+    border-radius: 18px;
+    background: var(--bg-card);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ⭐ 카드 왼쪽 포인트 바 */
+.archive-item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 18px;
+    bottom: 18px;
+    width: 4px;
+    border-radius: 4px;
+    background: rgba(148,163,184,0.35);
+}
+
+.archive-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 44px rgba(15, 23, 42, 0.16);
+}
+
+/* 🔥 고정글 */
+.archive-item.pinned {
+    background: linear-gradient(
+        90deg,
+        rgba(245,158,11,0.16),
+        var(--bg-card) 45%
+    );
+}
+
+.archive-item.pinned::before {
+    background: linear-gradient(180deg, #f59e0b, #fbbf24);
+}
+
+/* 👑 관리자 글 */
+.archive-item.admin {
+    background: linear-gradient(
+        90deg,
+        rgba(56,189,248,0.18),
+        var(--bg-card) 45%
+    );
+}
+
+.archive-item.admin::before {
+    background: linear-gradient(180deg, #6366f1, #38bdf8);
+}
+
+/* 링크 */
+.archive-link {
+    display: block;
+    padding: 24px 26px;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* ===============================
+   제목
+=============================== */
+
+.archive-title-text {
+    display: block;
+    position: relative;
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    line-height: 1.45;
+    color: var(--text-main);
+    transition: color 0.2s ease;
+}
+
+.archive-item:hover .archive-title-text {
+    color: var(--primary);
+}
+
+.archive-title-text::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 0;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+    transition: width 0.3s ease;
+}
+
+.archive-item:hover .archive-title-text::after {
+    width: 42px;
+}
+
+/* ===============================
+   메타 정보
+=============================== */
+
+.archive-meta {
+    font-size: 13px;
+    color: var(--text-sub);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.archive-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.archive-meta:last-of-type {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(148,163,184,0.35);
+}
+
+.archive-meta b {
+    color: var(--text-main);
+}
+
+/* ===============================
+   🔘 우하단 플로팅 버튼
+=============================== */
+
+.archive-float-actions {
+    position: fixed;
+    right: 32px;
+    bottom: 32px;
+    display: flex;
+    gap: 14px;
+    z-index: 9999;
+}
+
+.archive-float-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 14px;
+    text-decoration: none;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.25);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.archive-float-btn.home {
+    background: rgba(148,163,184,0.18);
+    color: var(--text-main);
+}
+
+.archive-float-btn.write {
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: #020617;
+}
+
+.archive-float-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 18px 44px rgba(15,23,42,0.35);
+}
+
+/* ===============================
+   🌙 다크모드 보정
+=============================== */
+
+body.dark .archive-search-bar {
+    box-shadow: 0 18px 40px rgba(0,0,0,0.55);
+}
+
+body.dark .archive-search-input,
+body.dark .archive-sort-select {
+    border-color: rgba(255,255,255,0.12);
+}
+
+body.dark .archive-item {
+    box-shadow:
+        0 20px 50px rgba(0,0,0,0.65),
+        inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+body.dark .archive-item:hover {
+    box-shadow:
+        0 28px 70px rgba(0,0,0,0.75),
+        inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+body.dark .archive-item::before {
+    background: rgba(255,255,255,0.12);
+}
+
+body.dark .archive-meta:last-of-type {
+    border-top-color: rgba(255,255,255,0.12);
+}
+
+/* ===============================
+   모바일
+=============================== */
+
+@media (max-width: 640px) {
+
+    .archive-title {
+        font-size: 24px;
+    }
+
+    .archive-title-text {
+        font-size: 16px;
+    }
+
+    .archive-float-actions {
+        right: 16px;
+        bottom: 20px;
+    }
+
+    .archive-search-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .archive-search-input,
+    .archive-sort-select,
+    .archive-search-btn {
+        width: 100%;
+    }
+}

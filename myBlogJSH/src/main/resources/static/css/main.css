@@ -1,0 +1,781 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700&display=swap');
+/* ✅ 추가: 전역 박스 기준 통일 */
+* {
+    box-sizing: border-box;
+}
+:root {
+    --bg-main: #eef2f7;
+    --bg-card: #ffffff;
+    --bg-sidebar: #1e293b;
+
+    --text-main: #0f172a;
+    --text-sub: #475569;
+    --text-light: #cbd5f5;
+
+    --primary: #38bdf8;
+    --primary-hover: #0ea5e9;
+
+    --danger: #ef4444;
+}
+
+body.dark {
+    /* 🌌 메인 배경 (딥 네이비 + 은은한 라이트) */
+    --bg-main:
+        radial-gradient(
+            900px 500px at 15% -10%,
+            rgba(56,189,248,0.12) 0%,
+            transparent 45%
+        ),
+        radial-gradient(
+            900px 500px at 85% 10%,
+            rgba(99,102,241,0.12) 0%,
+            transparent 45%
+        ),
+        #020617;
+
+    /* 카드 / 사이드바 */
+    --bg-card: #0f172a;
+    --bg-sidebar: #020617;
+
+    /* 텍스트 */
+    --text-main: #e5e7eb;
+    --text-sub: #b6c2d1;
+    --text-light: #cbd5f5;
+
+    /* 포인트 컬러 */
+    --primary: #60a5fa;
+    --primary-hover: #3b82f6;
+
+    --danger: #f87171;
+}
+
+
+
+/* ================= 레이아웃 ================= */
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ================= 사이드바 ================= */
+.sidebar {
+    width: 260px;
+    background: var(--bg-sidebar);
+    color: white;
+    padding: 40px 20px;
+
+    /* ✅ 추가: 사이드바 프레임 안정화 */
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* ================= 다크모드 버튼 (개선 버전) ================= */
+.darkmode-btn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    border-radius: 10px;
+    border: none;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    background: rgba(255, 255, 255, 0.08);
+    color: #e5e7eb;
+
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.darkmode-btn:hover {
+	transform: translateY(-3px);
+    background: rgba(56,189,248,0.25);
+    color: #38bdf8;
+}
+
+.darkmode-btn .icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.darkmode-btn .text {
+    white-space: nowrap;
+}
+
+/* ===== 프로필 이미지 영역 ===== */
+.profile-wrapper {
+    position: relative;
+    width: 90px;
+    margin: 0 auto 15px;
+}
+
+.profile-img {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: block;
+    object-fit: cover;
+    border: 3px solid var(--primary);
+}
+
+/* hover 오버레이 */
+.profile-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    color: white;
+    opacity: 0;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.profile-wrapper:hover .profile-overlay {
+    opacity: 1;
+}
+
+/* ================= 프로필 카드 ================= */
+.profile-card {
+    padding: 26px 18px;
+    border-radius: 22px;
+    background: rgba(30,41,59,0.9);
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+    	0 12px 30px rgba(0,0,0,0.45);
+    margin-bottom: 24px;
+
+    /* ✅ 추가: 상단 여백 안정화 */
+    margin-top: 10px;
+    
+    /* ✅ 카드 기준 폭 고정 */
+	width: 100%;
+}
+
+/* ================= 프로필 정보 ================= */
+.profile-info {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.profile-info .name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+/* ===== 회원 / 관리자 뱃지 ===== */
+.profile-info .role {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: #020617;
+}
+
+.profile-info .role.admin {
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(168,85,247,0.6);
+}
+
+/* ===== 개인 메시지 ===== */
+.profile-message {
+    font-size: 14px;              /* ⬅ 1px 업 */
+    color: var(--text-main);      /* ⬅ 서브 → 메인 텍스트 */
+    line-height: 1.6;
+    padding-top: 6px;
+    font-weight: 600;             /* ⬅ 한 단계만 더 */
+    letter-spacing: -0.01em;
+}
+
+/* ================= 로그아웃 버튼 ================= */
+.logout-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-top: 14px;
+    border-radius: 12px;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: #020617;
+    transition: transform .2s, box-shadow .2s;
+}
+
+.logout-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(56,189,248,0.5);
+}
+
+/* ================= 관리자 카드 ================= */
+.admin-card {
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+}
+
+.admin-card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e9d5ff;
+    margin-bottom: 8px;
+}
+
+.admin-card-link {
+    display: block;
+    padding: 10px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: #ffffff;
+}
+
+.admin-card-link:hover {
+    box-shadow: 0 8px 18px rgba(168,85,247,0.6);
+}
+
+/* ================= 로그인 ================= */
+.login-box input {
+    width: 100%;
+    padding: 11px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+}
+
+.login-box button {
+    width: 100%;
+    padding: 11px;
+    background: var(--primary);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.login-box button:hover {
+    background: var(--primary-hover);
+}
+
+/* ================= 메인 ================= */
+.main {
+    flex: 1;
+    padding: 40px 50px;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-main); /* ✅ 추가 */
+}
+
+.main footer {
+    margin-top: auto;
+    text-align: center;
+    color: var(--text-sub);
+}
+
+/* ================= 헤더 ================= */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.header h1 {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+/* ================= 메뉴 ================= */
+.top-menu {
+    display: flex;
+    gap: 14px;
+}
+
+.top-menu a {
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    color: var(--text-sub);
+    transition: 0.25s;
+}
+
+.top-menu a:hover {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+body.dark .top-menu a:hover {
+    background: rgba(56,189,248,0.15);
+    color: var(--primary);
+}
+
+.top-menu a.active {
+    background: var(--primary);
+    color: white;
+}
+
+.top-menu a.signup {
+    border: 1px solid var(--primary);
+    color: var(--primary);
+}
+
+.top-menu a.signup:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* ================= 카드 ================= */
+.cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+}
+
+.card {
+    background: var(--bg-card);
+    border-radius: 22px;
+	padding: 40px 44px;
+    /* ✨ 핵심: 입체감 */
+    box-shadow:
+        0 18px 50px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+
+    transition: transform .25s, box-shadow .25s;
+}
+
+/* ================= 다크모드 카드 텍스트 보정 ================= */
+body.dark .card h2,
+body.dark .card h3 {
+    color: #e5e7eb;
+}
+
+body.dark .card a {
+    color: var(--primary);
+}
+
+body.dark .card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 26px 60px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.08);
+}
+body.dark .card {
+    background: var(--bg-card);
+    box-shadow:
+        0 20px 60px rgba(0,0,0,0.6),
+        inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+body.dark .card {
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 20px 40px rgba(0,0,0,0.6);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+}
+
+/* =========================
+   👑 ADMIN 게시글 강조
+========================= */
+.admin-post {
+    background: linear-gradient(
+        90deg,
+        rgba(168, 85, 247, 0.08),
+        rgba(99, 102, 241, 0.05)
+    );
+}
+
+.admin-post td {
+    font-weight: 600;
+}
+
+/* 다크모드 대응 */
+body.dark .admin-post {
+    background: linear-gradient(
+        90deg,
+        rgba(168, 85, 247, 0.18),
+        rgba(99, 102, 241, 0.12)
+    );
+}
+
+/* ================= Toast 메시지 ================= */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: toastFade 3s forwards;
+    z-index: 9999;
+}
+
+.toast.success { background: #22c55e; }
+.toast.error { background: var(--danger); }
+
+.toast.info {
+    background: var(--danger);
+}
+
+@keyframes toastFade {
+    0%   { opacity: 0; transform: translateY(20px); }
+    10%  { opacity: 1; transform: translateY(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(20px); }
+}
+
+/* =========================
+   👑 관리자 게시글 강조
+========================= */
+.archive-admin-row {
+    background: linear-gradient(
+        90deg,
+        rgba(168,85,247,0.12),
+        rgba(56,189,248,0.08)
+    );
+}
+
+.archive-admin-title {
+    color: #7c3aed;
+    font-weight: 800;
+}
+
+body.dark .archive-admin-row {
+    background: linear-gradient(
+        90deg,
+        rgba(168,85,247,0.25),
+        rgba(56,189,248,0.15)
+    );
+}
+
+body.dark .archive-admin-title {
+    color: #c4b5fd;
+}
+
+/* ==================================================
+   🔘 공통 버튼 시스템 (추가된 부분)
+================================================== */
+
+.action-btn {
+    padding: 9px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background .2s, color .2s, transform .15s, box-shadow .15s;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* ✍️ 주요 버튼 */
+.action-btn.write,
+.action-btn.primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: #020617;
+}
+
+.action-btn.write:hover {
+    box-shadow: 0 6px 18px rgba(56,189,248,0.45);
+}
+
+/* ❤️ 좋아요 */
+.action-btn.like {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.action-btn.like:hover {
+    background: #fecaca;
+}
+
+/* ✏️ 수정 */
+.action-btn.edit {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.action-btn.edit:hover {
+    background: #bae6fd;
+}
+
+/* 🗑 삭제 */
+.action-btn.delete {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.action-btn.delete:hover {
+    background: #fecaca;
+}
+
+/* ↩ 뒤로 */
+.action-btn.back {
+    background: none;
+    color: var(--primary);
+    padding-left: 0;
+}
+
+.action-btn.back:hover {
+    text-decoration: underline;
+}
+
+/* 🚫 비활성 */
+.action-btn.disabled {
+    background: #e5e7eb !important;
+    color: #9ca3af !important;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* 🌙 다크모드 버튼 */
+body.dark .action-btn.like {
+    background: rgba(239,68,68,0.18);
+    color: #fca5a5;
+}
+
+body.dark .action-btn.edit {
+    background: rgba(56,189,248,0.18);
+    color: #7dd3fc;
+}
+
+body.dark .action-btn.delete {
+    background: rgba(239,68,68,0.18);
+    color: #fca5a5;
+}
+
+/* ==================================================
+   ✍️ WRITE PAGE 레이아웃 충돌 방지 (추가 전용)
+   main.css 기존 코드 수정 ❌
+================================================== */
+
+.main .write-container {
+    max-width: 920px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+    background: transparent;
+}
+
+/* write 페이지에서 flex 영향 최소화 */
+.main .write-container {
+    flex: none;
+}
+
+/* 모바일 write 여백 안정화 */
+@media (max-width: 640px) {
+	/* 🔥 핵심: 모바일에서는 세로 레이아웃 */
+    .layout {
+        flex-direction: column;
+    }
+    
+    .main {
+        padding: 24px 18px;
+    }
+
+    /* ✅ 추가: 모바일 사이드바 패딩 보정 */
+    .sidebar {
+        padding: 24px 16px;
+    }
+
+    /* ✅ 추가: 모바일 카드 둥글기 보정 */
+    .profile-card {
+        border-radius: 20px;
+    }
+}
+
+/* ==================================================
+   🔥 FIX: 상태 메시지 클릭 안 되는 문제 최종 해결
+   - 기존 코드 수정 ❌
+   - 추가만 ⭕
+================================================== */
+
+/* 상태 메시지 표시 영역을 실제 클릭 타겟으로 확정 */
+.profile-message-view {
+    pointer-events: auto !important;
+    cursor: text !important;
+    position: relative !important;
+    z-index: 9999 !important;
+}
+
+/* 입력창도 동일하게 최상위 */
+.profile-message-input {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 9999 !important;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+/* 프로필 카드 내부에서 클릭 가로채는 요소 무력화 */
+.profile-card::before,
+.profile-card::after {
+    pointer-events: none !important;
+}
+
+/* 이미지 오버레이가 메시지 영역 침범하지 못하게 */
+.profile-wrapper {
+    pointer-events: none !important;
+}
+
+.profile-wrapper * {
+    pointer-events: auto !important;
+}
+
+/* profile-info 전체를 최상위 레이어로 */
+.profile-info {
+    position: relative !important;
+    z-index: 9999 !important;
+}
+
+/* =========================================
+   🔥 게시글 상세 페이지에서는
+   전역 플로팅 버튼 효과 차단
+========================================= */
+.post-view-container .action-btn.like {
+    position: static !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 🌌 메인 다크 배경에 은은한 그라데이션 */
+body.dark .main {
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(56,189,248,0.08),
+            transparent 40%
+        ),
+        radial-gradient(
+            circle at bottom right,
+            rgba(99,102,241,0.08),
+            transparent 45%
+        ),
+        var(--bg-main);
+}
+
+/* 🧩 메인 카드 비대칭 레이아웃 */
+body.dark .cards {
+    grid-template-columns: 1.2fr 0.8fr;
+}
+
+/* ===============================
+   🌙 다크모드 카드 텍스트 보정
+================================ */
+
+body.dark .card h2,
+body.dark .card h3 {
+    color: #e5e7eb;
+}
+
+body.dark .card a {
+    color: var(--primary);
+}
+
+.card h2,
+.card h3 {
+    margin-bottom: 14px;
+    letter-spacing: -0.01em;
+}
+
+/* ==================================================
+   🔥 GLOBAL INPUT / TEXTAREA COLOR FIX (최종)
+================================================== */
+
+input,
+textarea {
+    color: var(--text-main);
+    background-color: var(--bg-card);
+}
+
+/* 다크모드 커서 & 선택 영역 */
+body.dark input,
+body.dark textarea {
+    color: #e5e7eb;
+    caret-color: #e5e7eb;
+}
+
+body.dark input::selection,
+body.dark textarea::selection {
+    background: rgba(56,189,248,0.35);
+    color: #ffffff;
+}
+
+/* ===============================
+   🔥 상태 메시지 실제 표시 텍스트 가독성 FIX
+=============================== */
+
+/* 보기 상태 */
+body.dark .profile-message,
+body.dark .profile-message-view {
+    color: #f1f5f9 !important;
+    font-weight: 500;
+    opacity: 1 !important;
+}
+
+/* 입력 상태 */
+body.dark .profile-message-input {
+    color: #f1f5f9 !important;
+    background: rgba(255,255,255,0.06);
+    border-radius: 6px;
+}
+
+/* ===============================
+   ✨ 상태 메시지 저장 하이라이트 효과
+=============================== */
+
+@keyframes profileSaveFlash {
+    0% {
+        background-color: rgba(56,189,248,0.25);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* 저장 완료 시 적용될 클래스 */
+.profile-message-input.saved {
+    animation: profileSaveFlash 0.8s ease-out;
+}

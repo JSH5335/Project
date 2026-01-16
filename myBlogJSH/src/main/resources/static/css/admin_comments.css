@@ -1,0 +1,174 @@
+@charset "UTF-8";
+
+/* ===============================
+   관리자 댓글 / 신고 댓글 관리
+================================ */
+
+.admin-table-card {
+    background: var(--bg-card);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+}
+
+body.dark .admin-table-card {
+    box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 20px 40px rgba(0,0,0,0.6);
+}
+
+/* ===============================
+   테이블 기본 정렬
+================================ */
+
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.admin-table th,
+.admin-table td {
+    text-align: center;
+    vertical-align: middle;
+    font-size: 14px;
+    color: var(--text-main);
+    padding: 14px 12px;
+}
+
+.admin-table th {
+    color: var(--text-sub);
+    font-weight: 800;
+}
+
+.admin-table th:first-child,
+.admin-table td:first-child {
+    width: 80px;
+    text-align: center;
+    font-weight: 700;
+}
+
+/* ===============================
+   댓글 내용
+================================ */
+
+.comment-content {
+    max-width: 420px;
+    margin: 0 auto;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: help;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.reported {
+    color: #dc2626;
+    font-weight: 800;
+}
+
+body.dark .reported {
+    color: #fca5a5;
+}
+
+.reply-row td.comment-content {
+    padding-left: 24px;
+    background: rgba(148,163,184,0.12);
+}
+
+body.dark .reply-row td.comment-content {
+    background: rgba(255,255,255,0.04);
+}
+
+/* ===============================
+   테이블 UX
+================================ */
+
+.admin-table tbody tr:hover {
+    background: rgba(56,189,248,0.08);
+}
+
+body.dark .admin-table tbody tr:hover {
+    background: rgba(56,189,248,0.12);
+}
+
+/* ===============================
+   원글 링크
+================================ */
+
+.link-post {
+    color: var(--primary);
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.link-post:hover {
+    text-decoration: underline;
+}
+
+/* ===============================
+   액션 버튼 영역
+================================ */
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-table td div[style*="display:flex"] {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ===============================
+   공통 버튼 스타일
+================================ */
+
+.admin-action-btn,
+.btn,
+.btn-delete {
+    border: none;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+/* ===============================
+   관리자 댓글 버튼 색상
+================================ */
+
+.btn-delete:not(.btn-hard-delete) {
+    background: rgba(245,158,11,0.85);
+    color: #ffffff;
+}
+
+.btn-delete:not(.btn-hard-delete):hover {
+    background: rgba(217,119,6,0.95);
+}
+
+.btn-hard-delete {
+    background: rgba(239,68,68,0.9) !important;
+    color: #ffffff;
+}
+
+.btn-hard-delete:hover {
+    background: rgba(220,38,38,1) !important;
+}
+
+/* =================================================
+   ✅ 모달 오버레이 완전 제거 (클릭 차단 원인)
+================================================= */
+
+.modal-backdrop {
+    pointer-events: auto;
+}

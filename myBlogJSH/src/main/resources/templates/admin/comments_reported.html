@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>管理者 | 通報コメント管理</title>
+
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin_comments.css">
+
+<style>
+.reply-row td.comment-content {
+    padding-left: 24px;
+    background: #f9fafb;
+}
+.reply-badge {
+    font-size: 11px;
+    color: #6b7280;
+    margin-right: 6px;
+}
+
+/* ================= pagination (통일) ================= */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 24px;
+}
+
+.pagination a,
+.pagination span {
+    min-width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.pagination a {
+    background: #f3f4f6;
+    color: #111827;
+}
+
+.pagination a:hover {
+    background: #e5e7eb;
+}
+
+.pagination .active {
+    background: #dc2626;
+    color: #ffffff;
+    font-weight: 700;
+}
+</style>
+</head>
+
+<body th:classappend="${session.darkMode == true} ? ' dark' : ''">
+
+<div class="layout">
+
+    <div th:replace="admin/fragments/sidebar :: adminSidebar"></div>
+
+    <section class="main">
+
+        <div class="header">
+            <h1>🚨 通報コメント管理</h1>
+            <p class="sub-text">通報されたコメントを確認・対応します</p>
+        </div>
+
+        <div class="admin-table-card">
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                        <th>コメント内容</th>
+                        <th>作成者</th>
+                        <th>元記事</th>
+                        <th>作成日時</th>
+                        <th>対応</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="comment, stat : ${reportedComments}"
+                        th:classappend="${comment.depth == 1} ? 'reply-row'">
+
+                        <td th:text="${currentPage * 10 + stat.index + 1}"></td>
+
+                        <td class="comment-content">
+                            <span th:if="${comment.depth == 1}"
+                                  class="reply-badge">↳ 返信</span>
+
+                            <span class="reported"
+                                  th:text="${comment.content}">
+                            </span>
+                        </td>
+
+                        <td th:text="${comment.userName}"></td>
+
+                        <td>
+                            <a th:href="@{/post/view/{id}(id=${comment.postId})}"
+                               target="_blank"
+                               class="link-post">
+                                表示
+                            </a>
+                        </td>
+
+                        <td th:text="${#temporals.format(comment.createdAt,'yyyy-MM-dd HH:mm')}"></td>
+
+                        <td>
+                            <div class="actions">
+
+                                <form th:action="@{/admin/reported-comments/ignore}"
+                                      method="post">
+                                    <input type="hidden"
+                                           name="commentId"
+                                           th:value="${comment.commentId}">
+                                    <button type="submit"
+                                            class="admin-action-btn btn-ignore">
+                                        無視
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/admin/reported-comments/soft-delete}"
+                                      method="post">
+                                    <input type="hidden"
+                                           name="commentId"
+                                           th:value="${comment.commentId}">
+                                    <button type="submit"
+                                            class="admin-action-btn btn-soft">
+                                        非表示
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/admin/reported-comments/hard-delete}"
+                                      method="post">
+                                    <input type="hidden"
+                                           name="commentId"
+                                           th:value="${comment.commentId}">
+                                    <input type="hidden"
+                                           name="parentId"
+                                           th:value="${comment.parentId}">
+                                    <button type="submit"
+                                            class="admin-action-btn btn-delete">
+                                        完全削除
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(reportedComments)}">
+                        <td colspan="6" style="text-align:center;color:#9ca3af;">
+                            通報されたコメントはありません。
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:if="${currentPage > 0}"
+                   th:href="@{/admin/reported-comments(page=${currentPage - 1})}">
+                    ‹
+                </a>
+
+                <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+                    <a th:if="${i != currentPage}"
+                       th:href="@{/admin/reported-comments(page=${i})}"
+                       th:text="${i + 1}">
+                    </a>
+                    <span th:if="${i == currentPage}"
+                          class="active"
+                          th:text="${i + 1}">
+                    </span>
+                </span>
+
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{/admin/reported-comments(page=${currentPage + 1})}">
+                    ›
+                </a>
+            </div>
+
+        </div>
+
+        <footer>
+            管理者ページ · Jo's Developer Blog
+        </footer>
+
+    </section>
+
+</div>
+
+</body>
+</html>

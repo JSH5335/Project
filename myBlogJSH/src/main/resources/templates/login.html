@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>ログイン | Jo's Developer Blog</title>
+
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/login.css">
+</head>
+
+<body th:classappend="${session.darkMode} ? ' dark' : ''">
+
+<div class="layout login-page">
+
+    <section class="login-card">
+
+        <!-- 🔵 ロゴ (クリックでメインに移動) -->
+        <div class="login-logo">
+            <a th:href="@{/}">
+                <img src="/images/logo.png" alt="Jo's Developer Blog">
+            </a>
+        </div>
+
+        <h1 class="login-title">ログイン</h1>
+        <p class="login-desc">
+            Jo's Developer Blogへようこそ 👋
+        </p>
+
+        <form method="post" action="/login">
+
+            <input type="text"
+                   name="userId"
+                   placeholder="ユーザーID"
+                   autocomplete="username"
+                   required>
+
+            <input type="password"
+                   name="userPw"
+                   placeholder="パスワード"
+                   autocomplete="current-password"
+                   required>
+
+            <button type="submit" class="login-btn">
+                ログイン
+            </button>
+        </form>
+
+        <div class="login-footer">
+            アカウントをお持ちでない方はこちら：
+            <a href="/register">会員登録</a>
+        </div>
+
+    </section>
+
+</div>
+
+</body>
+</html>

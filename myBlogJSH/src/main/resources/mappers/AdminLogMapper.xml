@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mnu.myblog.mapper.AdminLogMapper">
+
+    <!-- ================= 로그 저장 ================= -->
+    <insert id="insertAdminLog"
+            parameterType="com.mnu.myblog.domain.AdminLogDTO">
+        INSERT INTO admin_log (
+            admin_id,
+            action,
+            target,
+            created_at
+        ) VALUES (
+            #{adminId},
+            #{action},
+            #{target},
+            NOW()
+        )
+    </insert>
+
+    <!-- ================= 전체 로그 조회 ================= -->
+    <select id="findAllLogs"
+            resultType="com.mnu.myblog.domain.AdminLogDTO">
+        SELECT
+            id,
+            admin_id   AS adminId,
+            action,
+            target,
+            created_at AS createdAt
+        FROM admin_log
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- ================= 🔥 6시간 지난 로그 자동 삭제 ================= -->
+    <delete id="deleteLogsOlderThan6Hours">
+        <![CDATA[
+            DELETE
+            FROM admin_log
+            WHERE created_at < NOW() - INTERVAL 6 HOUR
+        ]]>
+    </delete>
+
+    <!-- ================= 🔥 전체 로그 삭제 ================= -->
+    <delete id="deleteAllLogs">
+        DELETE FROM admin_log
+    </delete>
+
+    <!-- ================= 🔥 단일 로그 삭제 ================= -->
+    <delete id="deleteLogById">
+        DELETE
+        FROM admin_log
+        WHERE id = #{logId}
+    </delete>
+
+</mapper>

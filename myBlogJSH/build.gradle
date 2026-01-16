@@ -1,0 +1,64 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.9'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.mnu'
+version = '1.0'
+description = '조의 블로그'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+/* 🔥 핵심 추가 부분 (이게 문제의 종결자) */
+tasks.withType(JavaCompile) {
+	options.compilerArgs += "-parameters"
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// 🌱 Spring Boot 기본
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// 🧩 MyBatis
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+
+	// 🔐 비밀번호 암호화 (BCrypt)
+	implementation 'org.springframework.security:spring-security-crypto'
+
+	// 📱 CoolSMS SDK
+	implementation 'net.nurigo:sdk:4.3.0'
+
+	// 🧾 Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 🔄 DevTools
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// 🛢 MySQL
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// 🧪 Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<aside class="sidebar" th:fragment="adminSidebar">
+
+    <h2 style="text-align:center;margin-bottom:20px;">
+        👤 ADMIN
+    </h2>
+
+    <p style="text-align:center;color:#9ca3af;margin-bottom:30px;">
+        管理者専用ページ
+    </p>
+
+    <!-- ===== プロフィールカード ===== -->
+    <div th:if="${session.loginUser != null}" class="profile-card">
+
+        <div class="profile-wrapper">
+            <form action="/profile/upload"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <input type="file"
+                       id="profileInput"
+                       name="profileImage"
+                       accept="image/*"
+                       style="display:none;"
+                       onchange="this.form.submit();">
+
+                <label for="profileInput">
+
+                    <!-- ✅ 프로필 이미지 존재 -->
+                    <img th:if="${session.loginUser.profileImage != null}"
+                         th:src="${session.loginUser.profileImage}"
+                         class="profile-img"
+                         alt="プロフィール写真">
+
+                    <!-- ✅ 기본 이미지 -->
+                    <img th:if="${session.loginUser.profileImage == null}"
+                         src="/images/profile.jpg"
+                         class="profile-img"
+                         alt="プロフィール写真">
+
+                    <div class="profile-overlay">📷</div>
+                </label>
+            </form>
+        </div>
+
+        <div class="profile-info">
+            <div class="name"
+                 th:text="${session.loginUser.userName}">
+            </div>
+
+            <div class="role admin">
+                👑 管理者
+            </div>
+        </div>
+
+        <!-- ===== ログアウト ===== -->
+        <a href="/logout" class="logout-btn">
+            ログアウト
+        </a>
+
+        <!-- ===== メインへ ===== -->
+        <a href="/" class="logout-btn"
+           style="margin-top:10px; background:rgba(255,255,255,0.15); box-shadow:none;">
+            メインへ
+        </a>
+
+    </div>
+
+    <!-- ===== 管理者メニュー ===== -->
+    <div class="admin-action-buttons">
+
+        <button type="button" class="admin-btn"
+                onclick="location.href='/admin/posts'">
+            📝 投稿管理
+        </button>
+
+        <button type="button" class="admin-btn"
+                onclick="location.href='/admin/comments'">
+            💬 コメント管理
+        </button>
+
+        <button type="button"
+                class="admin-btn admin-btn-reported"
+                onclick="location.href='/admin/reported-comments'">
+            🚨 通報コメント管理
+        </button>
+
+        <button type="button" class="admin-btn"
+                onclick="location.href='/admin/users'">
+            👥 会員管理
+        </button>
+
+        <button type="button" class="admin-btn"
+                onclick="location.href='/admin/notice/list'">
+            📣 お知らせ管理
+        </button>
+
+        <button type="button" class="admin-btn"
+                onclick="location.href='/admin/logs'">
+            📄 管理者ログ
+        </button>
+
+    </div>
+
+</aside>
+
+</body>
+</html>

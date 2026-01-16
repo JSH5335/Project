@@ -1,0 +1,348 @@
+@charset "UTF-8";
+
+/* ==================================================
+   💬 댓글 / 대댓글 공통 레이아웃
+================================================== */
+
+.comment-section {
+    margin-top: 70px;
+    padding: 44px;
+    background: var(--bg-card);
+    border-radius: 26px;
+    box-shadow: 0 18px 46px rgba(15,23,42,0.10);
+}
+
+body.dark .comment-section {
+    box-shadow:
+        0 22px 54px rgba(0,0,0,0.65),
+        inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+
+/* 제목 */
+.comment-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--text-main);
+    margin-bottom: 18px;
+}
+
+.comment-empty {
+    font-size: 15px;
+    color: var(--text-sub);
+    padding: 12px 4px;
+}
+
+/* ==================================================
+   ✍️ 댓글 입력 영역
+================================================== */
+
+.comment-form {
+    margin: 18px 0 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 18px;
+    font-size: 15px;
+    line-height: 1.75;
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: var(--bg-card);
+    color: var(--text-main);
+    resize: vertical;
+}
+
+body.dark .comment-form textarea {
+    background: #020617;
+    border-color: rgba(255,255,255,0.12);
+}
+
+.comment-form textarea::placeholder {
+    color: #94a3b8;
+}
+
+body.dark .comment-form textarea::placeholder {
+    color: #64748b;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.18);
+}
+
+/* 등록 버튼 */
+.comment-submit {
+    align-self: flex-end;
+    padding: 12px 28px;
+    border-radius: 999px;
+    border: none;
+    font-size: 14px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: #020617;
+    cursor: pointer;
+    box-shadow: 0 12px 30px rgba(56,189,248,0.45);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.comment-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(56,189,248,0.6);
+}
+
+/* ==================================================
+   🧾 댓글 카드
+================================================== */
+
+.comment-item {
+    background: var(--bg-card);
+    padding: 20px 22px;
+    border-radius: 18px;
+    margin-bottom: 14px;
+    position: relative;
+}
+
+body.dark .comment-item {
+    background: rgba(255,255,255,0.04);
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.03),
+        0 10px 24px rgba(0,0,0,0.45);
+}
+
+.comment-writer {
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.comment-date {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-left: 6px;
+}
+
+.comment-item > div:nth-of-type(2) {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--text-sub);
+    margin-top: 6px;
+}
+
+/* ==================================================
+   🧷 댓글 액션 버튼
+================================================== */
+
+.comment-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 14px;
+}
+
+.comment-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-sub);
+    cursor: pointer;
+}
+
+.comment-btn:hover {
+    text-decoration: underline;
+}
+
+/* 삭제 / 신고 */
+.comment-btn.delete {
+    color: #dc2626;
+}
+
+.comment-btn.report {
+    color: #f59e0b;
+}
+
+body.dark .comment-btn.delete {
+    color: #fca5a5;
+}
+
+body.dark .comment-btn.report {
+    color: #fcd34d;
+}
+
+/* ==================================================
+   ↪️ 대댓글 목록
+================================================== */
+
+.reply-list {
+    margin-top: 16px;
+    margin-left: 36px;
+    padding-left: 18px;
+    border-left: 3px solid #e5e7eb;
+}
+
+body.dark .reply-list {
+    border-color: rgba(255,255,255,0.12);
+}
+
+.reply-item {
+    background: #f8fafc;
+    padding: 14px 18px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+}
+
+body.dark .reply-item {
+    background: rgba(255,255,255,0.05);
+}
+
+.reply-writer {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--text-main);
+}
+
+.reply-date {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-left: 6px;
+}
+
+.reply-item > div:last-child {
+    margin-top: 4px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-sub);
+}
+
+/* ==================================================
+   ✍️ 대댓글 작성 폼
+================================================== */
+
+.reply-form {
+    margin-top: 12px;
+    margin-left: 36px;
+    padding-left: 18px;
+}
+
+.reply-form textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: var(--bg-card);
+    color: var(--text-main);
+    resize: vertical;
+}
+
+body.dark .reply-form textarea {
+    background: #020617;
+    border-color: rgba(255,255,255,0.12);
+}
+
+.reply-form textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(56,189,248,0.18);
+}
+
+/* ==================================================
+   🗑 삭제된 댓글 표시
+================================================== */
+
+.comment-item.deleted {
+    background: #f1f5f9;
+    color: #94a3b8;
+    opacity: 0.85;
+}
+
+body.dark .comment-item.deleted {
+    background: rgba(255,255,255,0.03);
+    color: var(--text-sub);
+}
+
+.comment-item.deleted > div:nth-of-type(2) {
+    font-style: italic;
+}
+
+/* ==================================================
+   📱 모바일 대응
+================================================== */
+
+@media (max-width: 640px) {
+
+    .comment-section {
+        padding: 28px;
+    }
+
+    .comment-title {
+        font-size: 22px;
+    }
+
+    .reply-list,
+    .reply-form {
+        margin-left: 18px;
+        padding-left: 12px;
+    }
+    
+/* ==================================================
+   🔥 댓글 다크 카드 강제 적용 (최종)
+================================================== */
+
+.comment-section .comment-item {
+    background: #020617 !important;
+    color: #e5e7eb !important;
+    box-shadow:
+        0 18px 44px rgba(0,0,0,0.7),
+        inset 0 0 0 1px rgba(255,255,255,0.06);
+}
+
+.comment-section .comment-writer {
+    color: #f8fafc !important;
+}
+
+.comment-section .comment-date {
+    color: #94a3b8 !important;
+}
+
+.comment-section .comment-item > div:nth-of-type(2) {
+    color: #e5e7eb !important;
+}
+
+/* 대댓글 */
+.comment-section .reply-item {
+    background: rgba(255,255,255,0.06) !important;
+    color: #e5e7eb !important;
+}
+
+.comment-section .reply-writer {
+    color: #f8fafc !important;
+}
+
+.comment-section .reply-date {
+    color: #94a3b8 !important;
+}
+
+/* 액션 버튼 */
+.comment-section .comment-btn {
+    color: #cbd5f5 !important;
+}
+
+.comment-section .comment-btn.delete {
+    color: #fca5a5 !important;
+}
+
+.comment-section .comment-btn.report {
+    color: #fde68a !important;
+}
+}

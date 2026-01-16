@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mnu.myblog.mapper.PostMapper">
+
+    <!-- ==================================================
+         게시글 작성
+    ================================================== -->
+    <insert id="insertPost"
+            parameterType="com.mnu.myblog.domain.PostDTO"
+            useGeneratedKeys="true"
+            keyProperty="postId">
+        INSERT INTO post_board (
+            title, content,
+            writer_id, writer_name,
+            view_count, like_count,
+            is_visible, is_deleted, is_pinned,
+            created_at, updated_at,
+            file_path, original_file_name
+        ) VALUES (
+            #{title}, #{content},
+            #{writerId}, #{writerName},
+            0, 0,
+            true, false, false,
+            NOW(), NOW(),
+            #{filePath}, #{originalFileName}
+        )
+    </insert>
+
+    <!-- ==================================================
+         게시글 목록 (일반)
+    ================================================== -->
+    <select id="selectPostList"
+            resultType="com.mnu.myblog.domain.PostDTO">
+        SELECT
+            p.post_id AS postId,
+            p.title,
+            p.writer_id AS writerId,
+            p.writer_name AS writerName,
+            u.role AS writerRole,
+            p.view_count AS viewCount,
+            p.like_count AS likeCount,
+            p.is_pinned AS isPinned,
+            p.created_at AS createdAt,
+            (
+                SELECT COUNT(*)
+                FROM post_comment c
+                WHERE c.post_id = p.post_id
+                  AND c.content != '삭제된 댓글입니다.'
+            ) AS commentCount
+        FROM post_board p
+        JOIN user u ON p.writer_id = u.user_id
+        WHERE p.is_visible = true
+          AND p.is_deleted = false
+        ORDER BY p.is_pinned DESC, p.post_id DESC
+    </select>
+
+    <!-- ==================================================
+         게시글 목록 (페이징 + 검색)
+    ================================================== -->
+    <select id="selectPostListPaged"
+            resultType="com.mnu.myblog.domain.PostDTO">
+        SELECT
+            p.post_id AS postId,
+            p.title,
+            p.writer_id AS writerId,
+            p.writer_name AS writerName,
+            u.role AS writerRole,
+            p.view_count AS viewCount,
+            p.like_count AS likeCount,
+            p.is_pinned AS isPinned,
+            p.created_at AS createdAt,
+            (
+                SELECT COUNT(*)
+                FROM post_comment c
+                WHERE c.post_id = p.post_id
+                  AND c.content != '삭제된 댓글입니다.'
+            ) AS commentCount
+        FROM post_board p
+        JOIN user u ON p.writer_id = u.user_id
+        WHERE p.is_visible = true
+          AND p.is_deleted = false
+        <if test="keyword != null and keyword != ''">
+            AND (
+                p.title LIKE CONCAT('%', #{keyword}, '%')
+                OR p.content LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY p.is_pinned DESC, p.post_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ==================================================
+         게시글 수
+    ================================================== -->
+    <select id="selectPostCount" resultType="int">
+        SELECT COUNT(*)
+        FROM post_board
+        WHERE is_visible = true
+          AND is_deleted = false
+        <if test="keyword != null and keyword != ''">
+            AND (
+                title LIKE CONCAT('%', #{keyword}, '%')
+                OR content LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+    </select>
+
+    <!-- ==================================================
+         관리자 게시글 목록 (기존)
+    ================================================== -->
+    <select id="selectPostListAdmin"
+            resultType="com.mnu.myblog.domain.PostDTO">
+        SELECT
+            p.post_id AS postId,
+            p.title,
+            p.writer_id AS writerId,
+            p.writer_name AS writerName,
+            u.role AS writerRole,
+            p.view_count AS viewCount,
+            p.like_count AS likeCount,
+            p.is_visible AS isVisible,
+            p.is_deleted AS isDeleted,
+            p.is_pinned AS isPinned,
+            p.created_at AS createdAt,
+            p.file_path AS filePath,
+            p.original_file_name AS originalFileName
+        FROM post_board p
+        JOIN user u ON p.writer_id = u.user_id
+        ORDER BY p.is_pinned DESC, p.post_id DESC
+    </select>
+
+    <!-- ==================================================
+         관리자 게시글 목록 (페이징)
+    ================================================== -->
+    <select id="selectPostListAdminPaged"
+            resultType="com.mnu.myblog.domain.PostDTO">
+        SELECT
+            p.post_id AS postId,
+            p.title,
+            p.writer_id AS writerId,
+            p.writer_name AS writerName,
+            u.role AS writerRole,
+            p.view_count AS viewCount,
+            p.like_count AS likeCount,
+            p.is_visible AS isVisible,
+            p.is_deleted AS isDeleted,
+            p.is_pinned AS isPinned,
+            p.created_at AS createdAt,
+            p.file_path AS filePath,
+            p.original_file_name AS originalFileName
+        FROM post_board p
+        JOIN user u ON p.writer_id = u.user_id
+        ORDER BY p.is_pinned DESC, p.post_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ==================================================
+         🔍 관리자 게시글 (검색 + 상태 필터 + 페이징)
+    ================================================== -->
+    <select id="selectPostListAdminPagedWithFilter"
+            resultType="com.mnu.myblog.domain.PostDTO">
+        SELECT
+            p.post_id AS postId,
+            p.title,
+            p.writer_id AS writerId,
+            p.writer_name AS writerName,
+            u.role AS writerRole,
+            p.view_count AS viewCount,
+            p.like_count AS likeCount,
+            p.is_visible AS isVisible,
+            p.is_deleted AS isDeleted,
+            p.is_pinned AS isPinned,
+            p.created_at AS createdAt,
+            p.file_path AS filePath,
+            p.original_file_name AS originalFileName
+        FROM post_board p
+        JOIN user u ON p.writer_id = u.user_id
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (
+                p.title LIKE CONCAT('%', #{keyword}, '%')
+                OR p.content LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="status == 'VISIBLE'">
+            AND p.is_visible = true AND p.is_deleted = false
+        </if>
+        <if test="status == 'HIDDEN'">
+            AND p.is_visible = false AND p.is_deleted = false
+        </if>
+        <if test="status == 'DELETED'">
+            AND p.is_deleted = true
+        </if>
+        ORDER BY p.is_pinned DESC, p.post_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ==================================================
+         🔢 관리자 게시글 수 (검색 + 상태 필터)
+    ================================================== -->
+    <select id="selectPostAdminCountWithFilter" resultType="int">
+        SELECT COUNT(*)
+        FROM post_board p
+        WHERE 1=1
+        <if test="keyword != null and keyword != ''">
+            AND (
+                p.title LIKE CONCAT('%', #{keyword}, '%')
+                OR p.content LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        <if test="status == 'VISIBLE'">
+            AND p.is_visible = true AND p.is_deleted = false
+        </if>
+        <if test="status == 'HIDDEN'">
+            AND p.is_visible = false AND p.is_deleted = false
+        </if>
+        <if test="status == 'DELETED'">
+            AND p.is_deleted = true
+        </if>
+    </select>
+
+    <!-- ==================================================
+         게시글 상세
+    ================================================== -->
+    <select id="selectPostById"
+            resultType="com.mnu.myblog.domain.PostDTO">
+        SELECT
+            p.post_id AS postId,
+            p.title,
+            p.content,
+            p.writer_id AS writerId,
+            p.writer_name AS writerName,
+            u.role AS writerRole,
+            p.view_count AS viewCount,
+            p.like_count AS likeCount,
+            p.is_visible AS isVisible,
+            p.is_deleted AS isDeleted,
+            p.is_pinned AS isPinned,
+            p.created_at AS createdAt,
+            p.updated_at AS updatedAt,
+            p.file_path AS filePath,
+            p.original_file_name AS originalFileName
+        FROM post_board p
+        JOIN user u ON p.writer_id = u.user_id
+        WHERE p.post_id = #{postId}
+    </select>
+
+    <!-- ==================================================
+         👀 조회수 증가
+    ================================================== -->
+    <update id="increaseViewCount">
+        UPDATE post_board
+        SET view_count = view_count + 1
+        WHERE post_id = #{postId}
+          AND is_visible = true
+          AND is_deleted = false
+    </update>
+
+    <!-- ==================================================
+         ❤️ 좋아요 증가 / 감소
+    ================================================== -->
+    <update id="increaseLikeCount">
+        UPDATE post_board
+        SET like_count = like_count + 1
+        WHERE post_id = #{postId}
+          AND is_visible = true
+          AND is_deleted = false
+    </update>
+
+    <update id="decreaseLikeCount">
+        UPDATE post_board
+        SET like_count = like_count - 1
+        WHERE post_id = #{postId}
+          AND like_count > 0
+    </update>
+
+    <!-- ==================================================
+         📌 고정
+    ================================================== -->
+    <update id="pinPost">
+        UPDATE post_board
+        SET is_pinned = true
+        WHERE post_id = #{postId}
+          AND is_deleted = false
+    </update>
+
+    <update id="unpinPost">
+        UPDATE post_board
+        SET is_pinned = false
+        WHERE post_id = #{postId}
+    </update>
+
+    <!-- ==================================================
+         ✏️ 게시글 수정 (파일 포함)
+    ================================================== -->
+    <update id="updatePostWithFile"
+            parameterType="com.mnu.myblog.domain.PostDTO">
+        UPDATE post_board
+        SET
+            title = #{title},
+            content = #{content},
+            file_path = #{filePath},
+            original_file_name = #{originalFileName},
+            updated_at = NOW()
+        WHERE post_id = #{postId}
+    </update>
+
+    <!-- ==================================================
+         🔥 인기글 TOP 3
+    ================================================== -->
+    <select id="selectPopularTop3"
+            resultType="com.mnu.myblog.domain.PostDTO">
+        SELECT
+            p.post_id AS postId,
+            p.title,
+            p.writer_name AS writerName,
+            p.view_count AS viewCount,
+            p.like_count AS likeCount,
+            p.created_at AS createdAt
+        FROM post_board p
+        WHERE p.is_visible = true
+          AND p.is_deleted = false
+        ORDER BY p.view_count DESC, p.post_id DESC
+        LIMIT 3
+    </select>
+
+    <!-- ==================================================
+         👁 공개 / 비공개
+    ================================================== -->
+    <update id="hidePost">
+        UPDATE post_board
+        SET is_visible = false
+        WHERE post_id = #{postId}
+    </update>
+
+    <update id="showPost">
+        UPDATE post_board
+        SET is_visible = true
+        WHERE post_id = #{postId}
+    </update>
+
+    <!-- ==================================================
+         🗑 관리자 삭제 / 복원 (SOFT DELETE)
+    ================================================== -->
+    <update id="deletePostAdmin">
+        UPDATE post_board
+        SET is_deleted = true
+        WHERE post_id = #{postId}
+    </update>
+
+    <update id="restorePostAdmin">
+        UPDATE post_board
+        SET is_deleted = false
+        WHERE post_id = #{postId}
+    </update>
+
+    <!-- ==================================================
+         🧹 삭제된 게시글 정리 (HARD DELETE)
+    ================================================== -->
+    <delete id="cleanupDeletedPosts">
+        DELETE FROM post_board
+        WHERE is_deleted = true
+    </delete>
+
+</mapper>

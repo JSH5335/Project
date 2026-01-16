@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mnu.myblog.mapper.UserMapper">
+
+    <!-- ================= 아이디 중복 체크 ================= -->
+    <select id="countByUserId"
+            parameterType="string"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- ================= 회원가입 ================= -->
+    <insert id="insertUser"
+            parameterType="com.mnu.myblog.domain.UserDTO">
+        INSERT INTO user (
+            user_id,
+            user_pw,
+            user_name,
+            phone,
+            role,
+            profile_message,
+            banned
+        ) VALUES (
+            #{userId},
+            #{userPw},
+            #{userName},
+            #{phone},
+            'USER',
+            #{profileMessage},
+            false
+        )
+    </insert>
+
+    <!-- ================= 로그인 / 단일 회원 조회 ================= -->
+    <select id="findByUserId"
+            parameterType="string"
+            resultType="com.mnu.myblog.domain.UserDTO">
+        SELECT
+            user_id           AS userId,
+            user_pw           AS userPw,
+            user_name         AS userName,
+            phone,
+            role,
+            profile_message   AS profileMessage,
+            profile_image     AS profileImage,
+            banned,
+            banned_at         AS bannedAt,
+            ban_reason        AS banReason,
+            created_at        AS createdAt
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- ================= 개인 메시지 수정 ================= -->
+    <update id="updateProfileMessage">
+        UPDATE user
+        SET profile_message = #{profileMessage}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- ================= 관리자: 전체 회원 조회 ================= -->
+    <select id="findAllUsers"
+            resultType="com.mnu.myblog.domain.UserDTO">
+        SELECT
+            user_id     AS userId,
+            user_name   AS userName,
+            phone,
+            role,
+            banned,
+            banned_at   AS bannedAt,
+            created_at  AS createdAt
+        FROM user
+        WHERE ban_reason IS NULL
+           OR ban_reason != 'SELF_WITHDRAW'
+        ORDER BY
+            banned DESC,
+            CASE WHEN role = 'ADMIN' THEN 0 ELSE 1 END,
+            created_at DESC
+    </select>
+
+    <!-- ================= 관리자: 전체 회원 수 ================= -->
+    <select id="selectTotalUserCount" resultType="int">
+        SELECT COUNT(*)
+        FROM user
+    </select>
+
+    <!-- ================= 관리자: 권한 변경 ================= -->
+    <update id="updateRole">
+        UPDATE user
+        SET role = #{role}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- ================= 🔒 관리자: 회원 정지 ================= -->
+    <update id="banUser">
+        UPDATE user
+        SET banned = true,
+            banned_at = NOW(),
+            ban_reason = #{banReason}
+        WHERE user_id = #{userId}
+    </update>
+    
+    <!-- ================= 🔓 관리자: 회원 정지 해제 ================= -->
+    <update id="unbanUser">
+        UPDATE user
+        SET banned = 0,
+            banned_at = NULL,
+            ban_reason = NULL
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- ================= 👤 회원 탈퇴 (Soft Delete) ================= -->
+    <update id="withdraw">
+        UPDATE user
+        SET banned = 1,
+            banned_at = NOW(),
+            ban_reason = 'SELF_WITHDRAW'
+        WHERE user_id = #{userId}
+    </update>
+    
+    <!-- ================= 👤 프로필 이미지 수정 ================= -->
+    <update id="updateProfileImage">
+        UPDATE user
+        SET profile_image = #{profileImage}
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>

@@ -1,0 +1,67 @@
+/* ================= 회원 탈퇴 팝업 ================= */
+
+.withdraw-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.withdraw-modal.active {
+    display: flex;
+}
+
+.withdraw-box {
+    background: var(--bg-card);
+    width: 380px;
+    padding: 32px;
+    border-radius: 22px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+    text-align: center;
+}
+
+.withdraw-box h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.withdraw-box p {
+    font-size: 14px;
+    color: var(--text-sub);
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+
+.withdraw-box input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 18px;
+    font-size: 14px;
+}
+
+.withdraw-confirm-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 14px;
+    border: none;
+    background: #7f1d1d;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.withdraw-confirm-btn:hover {
+    background: #991b1b;
+}
+
+.withdraw-cancel {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #6366f1;
+    cursor: pointer;
+}

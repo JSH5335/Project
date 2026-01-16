@@ -1,0 +1,286 @@
+@charset "UTF-8";
+
+/* ==================================================
+   📄 게시글 상세 공통 레이아웃
+================================================== */
+.post-view-container {
+    max-width: 860px;
+    margin: 0 auto;
+}
+
+/* ==================================================
+   🧾 게시글 액션 버튼 (상단용)
+================================================== */
+.post-actions {
+    display: flex !important;
+    gap: 10px;
+    margin: 24px 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* 혹시 다른 CSS에서 숨기는 것 완전 차단 */
+.post-view-container > .post-actions {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* ==================================================
+   🔘 공통 버튼
+================================================== */
+.action-btn {
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    background: var(--bg-card);
+    color: var(--text-main);
+    transition: transform .2s ease, box-shadow .2s ease, opacity .2s;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(15,23,42,0.18);
+}
+
+/* ==================================================
+   ❤️ 좋아요
+================================================== */
+.action-btn.like {
+    border: 1px solid rgba(148,163,184,0.35);
+}
+
+/* ❤️ 좋아요 비활성화 */
+.action-btn.like-disabled,
+.action-btn.disabled,
+.action-btn.like:disabled {
+    background: rgba(148,163,184,0.25) !important;
+    color: #9ca3af !important;
+    cursor: default !important;
+    pointer-events: none;
+    box-shadow: none;
+    opacity: 1;
+}
+
+/* ==================================================
+   ✏️ 수정 / 🗑 삭제
+================================================== */
+.action-btn.edit {
+    background: linear-gradient(135deg, #bae6fd, #e0f2fe);
+    color: #0369a1;
+}
+
+.action-btn.delete {
+    background: linear-gradient(135deg, #fecaca, #fee2e2);
+    color: #b91c1c;
+}
+
+/* ==================================================
+   🌙 다크모드 버튼 보정 (main.css 기준 통일)
+================================================== */
+body.dark .action-btn {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-main);
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.06),
+        0 12px 28px rgba(0,0,0,0.6);
+}
+
+body.dark .action-btn.like {
+    border-color: rgba(255,255,255,0.16);
+}
+
+body.dark .action-btn.edit {
+    background: rgba(56,189,248,0.22);
+    color: #bae6fd;
+}
+
+body.dark .action-btn.delete {
+    background: rgba(239,68,68,0.22);
+    color: #fecaca;
+}
+
+/* ==================================================
+   🛠 관리자 전용 게시글 버튼
+================================================== */
+.admin-post-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    justify-content: flex-end;
+}
+
+.action-btn.admin {
+    background: var(--bg-sidebar);
+    color: #ffffff;
+    font-weight: 800;
+}
+
+/* ==================================================
+   📝 게시글 본문
+================================================== */
+.post-content {
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--text-main);
+    margin: 50px 0 70px;
+    white-space: pre-line;
+}
+
+/* ==================================================
+   📎 첨부파일 영역
+================================================== */
+.post-attachment {
+    display: block !important;
+    margin: 22px 0;
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: var(--bg-card);
+    border: 1px solid rgba(148,163,184,0.25);
+}
+
+body.dark .post-attachment {
+    border-color: rgba(255,255,255,0.1);
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.04),
+        0 18px 40px rgba(0,0,0,0.65);
+}
+
+.post-attachment .action-btn {
+    display: inline-flex !important;
+}
+
+/* ==================================================
+   🚫 전역 플로팅 좋아요 버튼 무효화
+================================================== */
+.post-view-container .action-btn.like {
+    position: static !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* ==================================================
+   🚀 하단 플로팅 버튼 (다른 페이지용)
+================================================== */
+.post-floating-actions {
+    position: fixed;
+    right: 32px;
+    bottom: 32px;
+    display: flex;
+    gap: 14px;
+    z-index: 1000;
+}
+
+.post-floating-actions .action-btn {
+    box-shadow: 0 16px 36px rgba(15,23,42,0.35);
+}
+
+/* ==================================================
+   ✏️ 게시글 작성 / 수정 카드
+================================================== */
+.post-edit-card {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 44px;
+    background: var(--bg-card);
+    border-radius: 18px;
+    box-shadow: 0 18px 46px rgba(15,23,42,0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+}
+
+body.dark .post-edit-card {
+    box-shadow:
+        0 26px 70px rgba(0,0,0,0.75),
+        inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* ==================================================
+   ⚠️ 삭제 확인 모달
+================================================== */
+.confirm-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+}
+
+/* ==================================================
+   📱 모바일 대응
+================================================== */
+@media (max-width: 640px) {
+    .post-edit-card {
+        padding: 28px;
+    }
+
+    .confirm-card {
+        width: 300px;
+    }
+}
+
+/* ==================================================
+   📄 리스트 이동 플로팅 버튼
+================================================== */
+.floating-list-btn {
+    position: fixed;
+    right: 28px;
+    bottom: 28px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: var(--bg-sidebar);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.35);
+    z-index: 9999;
+    transition: all 0.25s ease;
+}
+
+.floating-list-btn:hover {
+    background: var(--primary);
+    transform: translateY(-3px);
+}
+
+/* ==================================================
+   🌙 게시글 제목 / 메타 다크모드 보정 (핵심)
+================================================== */
+
+/* 게시글 제목 */
+.post-title,
+.post-view-title {
+    color: var(--text-main);
+}
+
+/* 메타 정보 (작성자, 날짜, 아이콘 옆 텍스트) */
+.post-meta,
+.post-meta span,
+.post-meta i,
+.post-meta svg {
+    color: var(--text-sub);
+}
+
+/* 다크모드에서 메타 가독성 강화 */
+body.dark .post-meta {
+    color: #cbd5f5;
+}
+
+/* 좋아요 / 댓글 숫자 */
+.post-meta .count,
+.post-meta .like-count,
+.post-meta .comment-count {
+    color: #e5e7eb;
+}
+
+/* 아이콘 색상 */
+body.dark .post-meta i,
+body.dark .post-meta svg {
+    color: #93c5fd;
+}

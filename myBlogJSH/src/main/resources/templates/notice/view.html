@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${notice.title}">お知らせ詳細</title>
+
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- 공지 상세 전용 -->
+    <link rel="stylesheet" href="/css/notice_view.css">
+</head>
+<body th:classappend="${session.darkMode} ? ' dark' : ''">
+
+<div class="layout">
+    <section class="main">
+
+        <div class="notice-view-container">
+
+            <!-- ===============================
+                 📢 HEADER
+            =============================== -->
+            <div class="notice-view-header">
+                <h1 class="notice-view-title"
+                    th:text="${notice.title}">
+                    お知らせタイトル
+                </h1>
+
+                <div class="notice-view-meta">
+                    <span>
+                        📅
+                        <span th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}">
+                        </span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- ===============================
+                 🖼 IMAGE
+            =============================== -->
+            <div class="notice-view-image"
+                 th:if="${notice.imagePath != null and notice.imagePath != ''}">
+                <img th:src="${notice.imagePath}"
+                     alt="お知らせ画像">
+            </div>
+
+            <!-- ===============================
+                 📝 CONTENT
+                 ※ 줄바꿈 유지용 utext
+            =============================== -->
+            <div class="notice-view-content"
+                 th:utext="${#strings.replace(notice.content, '\n', '<br/>')}">
+            </div>
+
+            <!-- ===============================
+                 ✔ CHECK AREA
+            =============================== -->
+            <div class="notice-view-check">
+
+                <form th:action="@{/notice/check/{id}(id=${notice.noticeId})}"
+                      method="post">
+                    <button type="submit"
+                            class="action-btn primary">
+                        ✔ 確認済み
+                    </button>
+                </form>
+
+                <div class="check-count">
+                    ✔ 確認数
+                    <strong th:text="${notice.checkCount}">0</strong>
+                </div>
+
+            </div>
+
+            <!-- ===============================
+                 ⬅ FOOTER
+            =============================== -->
+            <div class="notice-view-footer">
+                <a href="/notice/list"
+                   class="action-btn back">
+                    ← 一覧へ戻る
+                </a>
+            </div>
+
+        </div>
+
+    </section>
+</div>
+
+</body>
+</html>

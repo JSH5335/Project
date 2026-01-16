@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+
+<title>Jo's Developer Blog</title>
+
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/index.css">
+<link rel="stylesheet" href="/css/withdraw.css">
+
+<style>
+/* ================= 회원 탈퇴 팝업 ================= */
+.withdraw-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.withdraw-modal.active {
+    display: flex;
+}
+
+.withdraw-box {
+    background: var(--bg-card);
+    width: 380px;
+    padding: 32px;
+    border-radius: 22px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.withdraw-box h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.withdraw-box p {
+    font-size: 14px;
+    color: var(--text-sub);
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+
+.withdraw-box input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 18px;
+}
+
+.withdraw-confirm-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 14px;
+    border: none;
+    background: #7f1d1d;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.withdraw-cancel {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #6366f1;
+    cursor: pointer;
+}
+
+/* ================= 상태 메시지 ================= */
+.profile-message-form {
+    margin-top: 6px;
+}
+
+.profile-message-input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--text-light);
+    outline: none;
+    padding: 4px 0;
+}
+
+.profile-message-input::placeholder {
+    color: #94a3b8;
+}
+
+.profile-message-input:focus {
+    border-bottom: 1px dashed #c7d2fe;
+}
+</style>
+</head>
+
+<body th:classappend="${session.darkMode == true} ? ' dark' : ''">
+
+<div class="layout">
+
+    <!-- ===== サイドバー ===== -->
+    <aside class="sidebar">
+
+        <!-- ================= ログイン状態 ================= -->
+        <div th:if="${session.loginUser != null}" class="profile-card">
+
+            <div class="profile-wrapper">
+                <form action="/profile/upload"
+                      method="post"
+                      enctype="multipart/form-data">
+
+                    <input type="file"
+                           id="profileInput"
+                           name="profileImage"
+                           accept="image/*"
+                           style="display:none;"
+                           onchange="this.form.submit();">
+
+                    <label for="profileInput">
+
+                        <!-- ✅ 프로필 이미지 있을 때 -->
+                        <img th:if="${session.loginUser.profileImage != null}"
+                             th:src="${session.loginUser.profileImage}"
+                             class="profile-img"
+                             alt="プロフィール写真">
+
+                        <!-- ✅ 기본 이미지 -->
+                        <img th:if="${session.loginUser.profileImage == null}"
+                             src="/images/default-profile.png"
+                             class="profile-img"
+                             alt="プロフィール写真">
+
+                        <div class="profile-overlay">📷</div>
+                    </label>
+                </form>
+            </div>
+
+            <div class="profile-info">
+                <div class="name"
+                     th:text="${session.loginUser.userName}"></div>
+
+                <div class="role"
+                     th:classappend="${session.loginUser.role == 'ADMIN'} ? ' admin' : ' member'">
+                    <span th:if="${session.loginUser.role == 'ADMIN'}">👑 管理者</span>
+                    <span th:if="${session.loginUser.role != 'ADMIN'}">👤 会員</span>
+                </div>
+
+                <!-- ✅ 상태 메시지 (엔터 저장) -->
+                <form action="/user/profile-message"
+                      method="post"
+                      class="profile-message-form">
+                    <input type="text"
+                           name="profileMessage"
+                           class="profile-message-input"
+                           th:value="${session.loginUser.profileMessage}"
+                           placeholder="ステータスメッセージを入力してください"
+                           onkeydown="return submitProfileMessage(event)">
+                </form>
+            </div>
+
+            <!-- 로그아웃 -->
+            <a href="/logout" class="logout-btn">ログアウト</a>
+
+            <!-- ✅ 회원 탈퇴 (팝업 호출) -->
+            <button th:if="${session.loginUser.role != 'ADMIN'}"
+                    type="button"
+                    class="logout-btn"
+                    style="margin-top:12px; background:#7f1d1d;"
+                    onclick="openWithdrawModal()">
+                会員退会
+            </button>
+
+            <!-- 관리자 카드 -->
+            <div th:if="${session.loginUser.role == 'ADMIN'}"
+                 class="admin-card">
+                <div class="admin-card-title">管理者メニュー</div>
+                <a href="/admin" class="admin-card-link">
+                    🛠 管理者ページ
+                </a>
+            </div>
+
+            <!-- 🌙 ダーク모드 -->
+            <form th:action="@{/darkmode/toggle}" method="post">
+                <button type="submit" class="darkmode-btn">
+                    <span th:if="${session.darkMode == true}">☀️ ライトモード</span>
+                    <span th:if="${session.darkMode != true}">🌙 ダークモード</span>
+                </button>
+            </form>
+
+        </div>
+
+        <!-- ================= 非ログイン ================= -->
+        <div th:if="${session.loginUser == null}" class="brand-home">
+
+            <div class="logo-wrapper">
+                <img src="/images/logo.png"
+                     alt="Jo's Developer Blog Logo"
+                     class="logo-img">
+            </div>
+
+            <div class="hero-text">
+                <h1 class="hero-title">Jo's Developer Blog</h1>
+                <p class="hero-role">
+                    Java・Spring Boot・Webデベロッパー
+                </p>
+                <p class="hero-desc">
+                    ウェブサービスの構造と流れを理解し、<br>
+                    ユーザー体験を考慮した開発を目指します。
+                </p>
+            </div>
+
+            <div class="login-box">
+                <form method="post" action="/login">
+                    <input type="text" name="userId" placeholder="ユーザーID">
+                    <input type="password" name="userPw" placeholder="パスワード">
+                    <button type="submit" class="login-btn">ログイン</button>
+                </form>
+            </div>
+
+        </div>
+
+    </aside>
+
+    <!-- ===== メイン ===== -->
+    <section class="main">
+
+        <div class="header">
+            <div class="dashboard-hero">
+                <h1>
+                    ようこそ <span>Jo's Developer Blog</span> へ
+                </h1>
+                <p>
+                    Java・Spring Bootを基盤として、<br>
+                    ウェブサービスを設計・実装しています。
+                </p>
+            </div>
+
+            <nav class="top-menu">
+                <a href="/notice/list">お知らせ</a>
+                <a href="/archive">アーカイブ</a>
+
+                <a href="/register"
+                   class="signup"
+                   th:if="${session.loginUser == null}">
+                   会員登録
+                </a>
+            </nav>
+        </div>
+
+        <div class="cards">
+
+            <div class="card notice-card">
+                <h2>📢 お知らせ</h2>
+
+                <ul class="notice-list">
+                    <li th:each="notice : ${noticeList}" class="notice-item">
+
+                        <div class="notice-thumb"
+                             th:if="${notice.imagePath != null and notice.imagePath != ''}">
+                            <img th:src="@{${notice.imagePath}}">
+                        </div>
+
+                        <div class="notice-text">
+                            <div class="notice-title"
+                                 th:text="${notice.title}"></div>
+                            <div class="notice-date"
+                                 th:text="${#temporals.format(notice.createdAt,'yyyy.MM.dd')}"></div>
+                        </div>
+
+                    </li>
+                </ul>
+
+                <a href="/notice/list" class="more-link">
+                    お知らせをもっと見る →
+                </a>
+            </div>
+
+            <div class="card portfolio-card">
+                <h2>🗂 アーカイブ</h2>
+                <ul class="list portfolio-list">
+                    <li th:each="post : ${popularPostList}">
+                        <a th:href="@{/post/view/{postId}(postId=${post.postId})}"
+                              th:text="${post.title}"></a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <footer>
+            © 2026 Jo's Developer Blog. 全著作権所有
+        </footer>
+
+    </section>
+
+</div>
+
+<!-- ================= 회원 탈퇴 팝업 ================= -->
+<div class="withdraw-modal" id="withdrawModal">
+    <div class="withdraw-box">
+        <h2>⚠ 会員退会</h2>
+        <p id="withdrawMessage">
+            退会するにはパスワードの確認が必要です。<br>
+            この操作は取り消せません。
+        </p>
+
+        <form method="post" action="/user/withdraw" onsubmit="return handleWithdrawSubmit()">
+            <input type="password"
+                   name="userPw"
+                   placeholder="現在のパスワード"
+                   required>
+
+            <button type="submit" id="withdrawConfirmBtn" class="withdraw-confirm-btn">
+                退会する
+            </button>
+        </form>
+
+        <div class="withdraw-cancel"
+             onclick="closeWithdrawModal()">
+            ← キャンセル
+        </div>
+    </div>
+</div>
+
+<!-- 🍞 Toast -->
+<div id="toast"
+     th:if="${session.toastMsg}"
+     th:text="${session.toastMsg}"
+     th:class="'toast ' + ${session.toastType}">
+</div>
+
+<script>
+function openWithdrawModal() {
+    resetWithdrawUI();
+    document.getElementById('withdrawModal').classList.add('active');
+}
+
+function closeWithdrawModal() {
+    document.getElementById('withdrawModal').classList.remove('active');
+}
+
+let withdrawConfirmed = false;
+
+function handleWithdrawSubmit() {
+    const btn = document.getElementById('withdrawConfirmBtn');
+    const msg = document.getElementById('withdrawMessage');
+
+    if (!withdrawConfirmed) {
+        withdrawConfirmed = true;
+        btn.textContent = '本当に退会しますか？';
+        btn.style.background = '#991b1b';
+        msg.innerHTML = '最終確認です。<br>本当に退会してもよろしいですか？';
+        return false;
+    }
+    return true;
+}
+
+function resetWithdrawUI() {
+    withdrawConfirmed = false;
+    const btn = document.getElementById('withdrawConfirmBtn');
+    const msg = document.getElementById('withdrawMessage');
+
+    btn.textContent = '退会する';
+    btn.style.background = '#7f1d1d';
+    msg.innerHTML =
+        '退会するにはパスワードの確認が必要です。<br>この操作は取り消せません。';
+}
+
+/* ✅ 상태 메시지 엔터 저장 */
+function submitProfileMessage(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+
+        const input = e.target;
+        input.classList.add('saved');
+
+        setTimeout(() => {
+            input.classList.remove('saved');
+        }, 900);
+
+        input.form.submit();
+        return false;
+    }
+    return true;
+}
+</script>
+
+</body>
+</html>

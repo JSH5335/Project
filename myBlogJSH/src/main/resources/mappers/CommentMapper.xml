@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mnu.myblog.mapper.CommentMapper">
+
+    <!-- ================= 게시글별 댓글 목록 (삭제 제외) ================= -->
+    <select id="selectByPostId"
+            parameterType="long"
+            resultType="com.mnu.myblog.domain.CommentDTO">
+        SELECT
+            c.comment_id   AS commentId,
+            c.post_id      AS postId,
+            c.user_id      AS userId,
+            c.user_name    AS userName,
+            c.content,
+            c.original_content AS originalContent,
+            c.created_at   AS createdAt,
+            c.parent_id    AS parentId,
+            c.is_deleted   AS deleted,
+            c.deleted_by   AS deletedBy,
+            CASE
+                WHEN c.parent_id IS NULL THEN 0
+                ELSE 1
+            END AS depth
+        FROM post_comment c
+        WHERE c.post_id = #{postId}
+        ORDER BY
+            COALESCE(c.parent_id, c.comment_id),
+            c.parent_id IS NOT NULL,
+            c.created_at
+    </select>
+
+    <!-- ================= 게시글별 댓글 목록 (삭제 포함) ================= -->
+    <select id="selectByPostIdWithDeleted"
+            parameterType="long"
+            resultType="com.mnu.myblog.domain.CommentDTO">
+        SELECT
+            c.comment_id   AS commentId,
+            c.post_id      AS postId,
+            c.user_id      AS userId,
+            c.user_name    AS userName,
+            c.content,
+            c.original_content AS originalContent,
+            c.created_at   AS createdAt,
+            c.parent_id    AS parentId,
+            c.is_deleted   AS deleted,
+            c.deleted_by   AS deletedBy,
+            CASE
+                WHEN c.parent_id IS NULL THEN 0
+                ELSE 1
+            END AS depth
+        FROM post_comment c
+        WHERE c.post_id = #{postId}
+        ORDER BY
+            COALESCE(c.parent_id, c.comment_id),
+            c.parent_id IS NOT NULL,
+            c.created_at
+    </select>
+
+    <!-- ================= 관리자 전체 댓글 목록 (삭제 포함) ================= -->
+    <select id="selectAll"
+            resultType="com.mnu.myblog.domain.CommentDTO">
+        SELECT
+            c.comment_id   AS commentId,
+            c.post_id      AS postId,
+            c.user_id      AS userId,
+            c.user_name    AS userName,
+            u.role         AS userRole,
+            c.content,
+            c.original_content AS originalContent,
+            c.created_at   AS createdAt,
+            c.parent_id    AS parentId,
+            c.is_deleted   AS deleted,
+            c.deleted_by   AS deletedBy,
+            CASE
+                WHEN c.parent_id IS NULL THEN 0
+                ELSE 1
+            END AS depth
+        FROM post_comment c
+        JOIN user u
+          ON c.user_id = u.user_id
+        ORDER BY c.comment_id DESC
+    </select>
+
+    <!-- ================= 관리자 전체 댓글 목록 (페이징 / 삭제 포함) ================= -->
+    <select id="selectAllPaged"
+            parameterType="map"
+            resultType="com.mnu.myblog.domain.CommentDTO">
+        SELECT
+            c.comment_id   AS commentId,
+            c.post_id      AS postId,
+            c.user_id      AS userId,
+            c.user_name    AS userName,
+            u.role         AS userRole,
+            c.content,
+            c.original_content AS originalContent,
+            c.created_at   AS createdAt,
+            c.parent_id    AS parentId,
+            c.is_deleted   AS deleted,
+            c.deleted_by   AS deletedBy,
+            CASE
+                WHEN c.parent_id IS NULL THEN 0
+                ELSE 1
+            END AS depth
+        FROM post_comment c
+        JOIN user u
+          ON c.user_id = u.user_id
+        ORDER BY c.comment_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ================= 댓글 작성 ================= -->
+    <insert id="insert"
+            parameterType="com.mnu.myblog.domain.CommentDTO">
+        INSERT INTO post_comment (
+            post_id,
+            user_id,
+            user_name,
+            content,
+            parent_id,
+            created_at,
+            is_deleted,
+            deleted_by,
+            original_content
+        )
+        VALUES (
+            #{postId},
+            #{userId},
+            #{userName},
+            #{content},
+            #{parentId},
+            NOW(),
+            FALSE,
+            NULL,
+            NULL
+        )
+    </insert>
+
+    <!-- ================= 댓글 삭제 (작성자 : SOFT DELETE) ================= -->
+    <update id="delete">
+        UPDATE post_comment
+        SET
+            original_content = content,
+            content = 'ユーザーにより削除されました。',
+            is_deleted = TRUE,
+            deleted_by = 'USER'
+        WHERE comment_id = #{commentId}
+          AND user_id = #{userId}
+    </update>
+
+    <!-- ================= 관리자 댓글 SOFT DELETE ================= -->
+    <update id="deleteByAdminSoft">
+        UPDATE post_comment
+        SET
+            original_content = content,
+            content = '管理者により削除されました。',
+            is_deleted = TRUE,
+            deleted_by = 'ADMIN'
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <!-- ================= 관리자 댓글 복구 ================= -->
+    <update id="restoreByAdmin">
+        UPDATE post_comment
+        SET
+            content = original_content,
+            original_content = NULL,
+            is_deleted = FALSE,
+            deleted_by = NULL
+        WHERE comment_id = #{commentId}
+    </update>
+
+    <!-- ================= 관리자 댓글 HARD DELETE ================= -->
+    <delete id="deleteParentHardByAdmin">
+        DELETE FROM post_comment
+        WHERE comment_id = #{commentId}
+           OR parent_id = #{commentId}
+    </delete>
+
+    <delete id="deleteChildHardByAdmin">
+        DELETE FROM post_comment
+        WHERE comment_id = #{commentId}
+    </delete>
+
+    <!-- ================= 카운트 ================= -->
+    <select id="selectTotalCount" resultType="int">
+        SELECT COUNT(*)
+        FROM post_comment
+        WHERE is_deleted = FALSE
+    </select>
+
+    <select id="selectTodayCount" resultType="int">
+        SELECT COUNT(*)
+        FROM post_comment
+        WHERE DATE(created_at) = CURDATE()
+          AND is_deleted = FALSE
+    </select>
+
+    <!-- ================= 관리자 전용 전체 댓글 수 (삭제 포함) ================= -->
+    <select id="selectTotalCountAdmin" resultType="int">
+        SELECT COUNT(*)
+        FROM post_comment
+    </select>
+
+    <!-- ================= 🔴 댓글 신고 ================= -->
+    <select id="checkIfReported" resultType="int">
+        SELECT COUNT(*)
+        FROM comment_report
+        WHERE comment_id = #{commentId}
+          AND user_id = #{userId}
+    </select>
+
+    <insert id="reportComment">
+        INSERT INTO comment_report (
+            comment_id,
+            user_id,
+            reason,
+            reported_at
+        ) VALUES (
+            #{commentId},
+            #{userId},
+            #{reason},
+            NOW()
+        )
+    </insert>
+
+    <!-- ================= 🚨 관리자용 신고 댓글 ================= -->
+    <select id="selectReportedComments"
+            resultType="com.mnu.myblog.domain.CommentDTO">
+        SELECT
+            c.comment_id         AS commentId,
+            c.post_id            AS postId,
+            c.user_id            AS userId,
+            c.user_name          AS userName,
+            c.content,
+            c.original_content AS originalContent,
+            c.created_at         AS createdAt,
+            c.parent_id          AS parentId,
+            c.is_deleted         AS deleted,
+            c.deleted_by         AS deletedBy,
+            COUNT(cr.comment_id) AS reportCount
+        FROM post_comment c
+        JOIN comment_report cr
+          ON c.comment_id = cr.comment_id
+        GROUP BY
+            c.comment_id,
+            c.post_id,
+            c.user_id,
+            c.user_name,
+            c.content,
+            c.original_content,
+            c.created_at,
+            c.parent_id,
+            c.is_deleted,
+            c.deleted_by
+        ORDER BY MAX(cr.reported_at) DESC
+    </select>
+
+    <select id="selectReportedCommentsCount" resultType="int">
+        SELECT COUNT(DISTINCT c.comment_id)
+        FROM post_comment c
+        JOIN comment_report cr
+          ON c.comment_id = cr.comment_id
+    </select>
+
+    <select id="selectReportedCommentsPaged"
+            parameterType="map"
+            resultType="com.mnu.myblog.domain.CommentDTO">
+        SELECT
+            c.comment_id         AS commentId,
+            c.post_id            AS postId,
+            c.user_id            AS userId,
+            c.user_name          AS userName,
+            c.content,
+            c.original_content AS originalContent,
+            c.created_at         AS createdAt,
+            c.parent_id          AS parentId,
+            c.is_deleted         AS deleted,
+            c.deleted_by         AS deletedBy,
+            COUNT(cr.comment_id) AS reportCount
+        FROM post_comment c
+        JOIN comment_report cr
+          ON c.comment_id = cr.comment_id
+        GROUP BY
+            c.comment_id,
+            c.post_id,
+            c.user_id,
+            c.user_name,
+            c.content,
+            c.original_content,
+            c.created_at,
+            c.parent_id,
+            c.is_deleted,
+            c.deleted_by
+        ORDER BY MAX(cr.reported_at) DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <delete id="deleteReportsByCommentId">
+        DELETE FROM comment_report
+        WHERE comment_id = #{commentId}
+    </delete>
+
+</mapper>

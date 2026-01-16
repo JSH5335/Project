@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>管理者 | コメント管理</title>
+
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin_comments.css">
+
+<style>
+.reply-row td.comment-content {
+    padding-left: 24px;
+    background: #f9fafb;
+}
+
+.reply-badge {
+    font-size: 11px;
+    color: #6b7280;
+    margin-right: 6px;
+}
+
+.deleted-row {
+    background: #fef2f2;
+}
+
+.deleted-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #b91c1c;
+    background: #fee2e2;
+    padding: 2px 6px;
+    border-radius: 6px;
+    margin-right: 6px;
+}
+
+.comment-content {
+    text-align: center;
+}
+
+.btn-hard-delete {
+    background-color: #7f1d1d !important;
+}
+.btn-hard-delete:hover {
+    background-color: #991b1b !important;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 24px;
+}
+
+.pagination a {
+    min-width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    text-decoration: none;
+    background: #f3f4f6;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pagination a:hover {
+    background: #e5e7eb;
+}
+
+.pagination a.active {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.pagination a.disabled {
+    pointer-events: none;
+    background: #f9fafb;
+    color: #9ca3af;
+}
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal {
+    width: 420px;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    padding: 26px;
+    text-align: center;
+}
+
+.modal-icon {
+    font-size: 42px;
+    margin-bottom: 10px;
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin-bottom: 8px;
+}
+
+.modal-desc {
+    font-size: 14px;
+    color: #4b5563;
+    margin-bottom: 20px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.modal-actions button {
+    min-width: 90px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-cancel {
+    background: #e5e7eb;
+}
+
+.btn-confirm {
+    color: #fff;
+}
+
+.btn-confirm.warn {
+    background: #f59e0b;
+}
+
+.btn-confirm.danger {
+    background: #dc2626;
+}
+</style>
+</head>
+
+<body th:classappend="${session.darkMode == true} ? ' dark' : ''">
+
+<div class="layout">
+
+    <div th:replace="admin/fragments/sidebar :: adminSidebar"></div>
+
+    <section class="main">
+
+        <div class="header">
+            <h1>💬 コメント管理</h1>
+            <p class="sub-text">すべてのコメントを管理します</p>
+        </div>
+
+        <div class="admin-table-card">
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>コメント内容</th>
+                        <th>作成者</th>
+                        <th>元記事</th>
+                        <th>作成日時</th>
+                        <th>管理</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="comment : ${commentList}"
+                        th:classappend="${comment.deleted} ? 'deleted-row' : ''">
+
+                        <td th:text="${comment.commentId}"></td>
+
+                        <td class="comment-content">
+                            <span th:if="${comment.deleted}"
+                                  class="deleted-label"
+                                  th:text="${comment.deletedBy == 'ADMIN'
+                                      ? '管理者により削除されました'
+                                      : 'ユーザーにより削除されました'}">
+                            </span>
+
+                            <span th:if="${comment.depth == 1}" class="reply-badge">↳ 返信</span>
+
+                            <span th:if="${!comment.deleted}"
+                                  th:text="${comment.content}"></span>
+                        </td>
+
+                        <td th:text="${comment.userName}"></td>
+
+                        <td>
+                            <a th:href="@{/post/view/{id}(id=${comment.postId})}" target="_blank">
+                                表示
+                            </a>
+                        </td>
+
+                        <td th:text="${#temporals.format(comment.createdAt,'yyyy-MM-dd HH:mm')}"></td>
+
+                        <td>
+                            <div th:if="${!comment.deleted}"
+                                 style="display:flex; justify-content:center; gap:6px;">
+
+                                <form th:action="@{/admin/comments/delete}"
+                                      method="post"
+                                      class="confirm-form"
+                                      data-type="soft">
+                                    <input type="hidden" name="commentId" th:value="${comment.commentId}">
+                                    <input type="hidden" name="page" th:value="${currentPage}">
+                                    <button type="submit" class="btn btn-delete">削除</button>
+                                </form>
+
+                                <form th:action="@{/admin/comments/hard-delete}"
+                                      method="post"
+                                      class="confirm-form"
+                                      data-type="hard">
+                                    <input type="hidden" name="commentId" th:value="${comment.commentId}">
+                                    <input type="hidden" name="page" th:value="${currentPage}">
+                                    <button type="submit"
+                                            class="btn btn-delete btn-hard-delete">
+                                        完全削除
+                                    </button>
+                                </form>
+
+                            </div>
+
+                            <div th:if="${comment.deleted}"
+                                 style="display:flex; justify-content:center; gap:6px;">
+
+                                <form th:action="@{/admin/comments/restore}"
+                                      method="post">
+                                    <input type="hidden" name="commentId"
+                                           th:value="${comment.commentId}">
+                                    <button type="submit" class="btn btn-restore">
+                                        ♻ 復元
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/admin/comments/hard-delete}"
+                                      method="post"
+                                      class="confirm-form"
+                                      data-type="hard">
+                                    <input type="hidden" name="commentId"
+                                           th:value="${comment.commentId}">
+                                    <button type="submit"
+                                            class="btn btn-delete btn-hard-delete">
+                                        完全削除
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination" th:if="${totalPages > 1}">
+                <a th:if="${currentPage > 0}"
+                   th:href="@{/admin/comments(page=${currentPage - 1})}">‹</a>
+
+                <a th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                   th:href="@{/admin/comments(page=${i})}"
+                   th:text="${i + 1}"
+                   th:classappend="${i == currentPage} ? ' active' : ''"></a>
+
+                <a th:if="${currentPage < totalPages - 1}"
+                   th:href="@{/admin/comments(page=${currentPage + 1})}">›</a>
+            </div>
+
+        </div>
+
+        <footer>
+            管理者ページ · Jo's Developer Blog
+        </footer>
+
+    </section>
+
+</div>
+
+<div class="modal-backdrop" id="confirmModal">
+    <div class="modal">
+        <div class="modal-icon" id="modalIcon">⚠️</div>
+        <div class="modal-title" id="modalTitle">確認</div>
+        <div class="modal-desc" id="modalDesc"></div>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" id="modalCancelBtn">キャンセル</button>
+            <button id="modalConfirmBtn" class="btn-confirm">削除</button>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ 여기만 교체된 JS -->
+<script>
+let targetForm = null;
+
+document.querySelectorAll('.confirm-form').forEach(form => {
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        targetForm = this;
+
+        const type = this.dataset.type;
+        const modal = document.getElementById('confirmModal');
+        const icon = document.getElementById('modalIcon');
+        const title = document.getElementById('modalTitle');
+        const desc = document.getElementById('modalDesc');
+        const confirmBtn = document.getElementById('modalConfirmBtn');
+
+        if (type === 'hard') {
+            icon.textContent = '🚨';
+            title.textContent = '完全削除';
+            desc.textContent = 'このコメントを完全に削除します。復元できません。';
+            confirmBtn.className = 'btn-confirm danger';
+            confirmBtn.textContent = '完全削除';
+        } else {
+            icon.textContent = '⚠️';
+            title.textContent = '削除確認';
+            desc.textContent = 'このコメントを削除しますか？';
+            confirmBtn.className = 'btn-confirm warn';
+            confirmBtn.textContent = '削除';
+        }
+
+        modal.style.display = 'flex';
+    });
+});
+
+document.getElementById('modalCancelBtn').addEventListener('click', () => {
+    document.getElementById('confirmModal').style.display = 'none';
+    targetForm = null;
+});
+
+document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+    if (targetForm) targetForm.submit();
+});
+</script>
+
+</body>
+</html>

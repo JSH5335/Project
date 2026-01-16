@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>記事編集 | Jo's Blog</title>
+
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/post_write.css">
+
+<style>
+/* ================== 카드 레이아웃 ================== */
+.write-container {
+    max-width: 900px; /* ⬅️ 사이즈 확대 */
+    margin: 60px auto;
+    padding: 0 20px;
+}
+
+/* ===== 수정 화면 헤더 ===== */
+.edit-header {
+    margin-bottom: 20px;
+}
+
+.edit-header h1 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.edit-header p {
+    font-size: 14px;
+    color: #64748b;
+    margin-top: 6px;
+}
+
+.write-card {
+    background: #ffffff;
+    padding: 48px 56px; /* ⬅️ 여백 확대 */
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(15,23,42,0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+/* ================== 입력폼 ================== */
+.write-input {
+    width: 100%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    font-size: 15px;
+    color: #111827;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+.write-textarea {
+    width: 100%;
+    min-height: 260px; /* ⬅️ 높이 증가 */
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1px solid #e5e7eb;
+    font-size: 15px;
+    color: #111827;
+    font-family: 'Noto Sans JP', sans-serif;
+    resize: vertical;
+}
+
+/* ================== 파일 업로드 ================== */
+.file-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-family: 'Noto Sans JP', sans-serif;
+}
+
+.file-wrapper label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+}
+
+#uploadFile {
+    display: none;
+}
+
+.custom-file-btn {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 14px;
+    background-color: #e5e7eb;
+    color: #111827;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    width: fit-content;
+}
+
+.custom-file-btn:hover {
+    background-color: #d1d5db;
+}
+
+#fileName {
+    font-size: 13px;
+    color: #64748b;
+    font-style: italic;
+}
+
+.remove-file-btn {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 12px;
+    background-color: #f87171;
+    color: #ffffff;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+.remove-file-btn:hover {
+    background-color: #ef4444;
+}
+
+/* ================== 버튼 ================== */
+.write-buttons {
+    display: flex;
+    gap: 14px;
+    justify-content: flex-end;
+    margin-top: 32px;
+}
+
+.write-btn {
+    padding: 12px 28px;
+    border-radius: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    font-size: 14px;
+    transition: background 0.2s ease;
+}
+
+.write-btn.cancel {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.write-btn.cancel:hover {
+    background: #d1d5db;
+}
+
+.write-btn.submit {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+.write-btn.submit:hover {
+    background: #2563eb;
+}
+</style>
+</head>
+
+<body th:classappend="${session.darkMode} ? ' dark' : ''">
+
+<div class="layout">
+    <section class="write-container">
+
+        <!-- ✏️ 수정 화면 안내 -->
+        <div class="edit-header">
+            <h1>✏️ 記事を修正しています</h1>
+            <p>既存の記事の内容を編集できます。修正後は「修正完了」を押してください。</p>
+        </div>
+
+        <div class="write-card">
+            <form method="post" th:action="@{/post/edit}" enctype="multipart/form-data">
+
+                <input type="hidden" name="postId" th:value="${post.postId}">
+
+                <!-- タイトル -->
+                <input type="text" name="title" class="write-input"
+                       th:value="${post.title}"
+                       placeholder="タイトルを入力してください"
+                       required>
+
+                <!-- 内容 -->
+                <textarea name="content"
+                          class="write-textarea"
+                          placeholder="内容を入力してください"
+                          required
+                          th:text="${post.content}"></textarea>
+
+                <!-- 📎 첨부파일 -->
+                <div class="file-wrapper">
+                    <label class="custom-file-btn" for="uploadFile">📎 ファイルを選択</label>
+                    <input type="file" name="uploadFile" id="uploadFile">
+
+                    <div id="fileName"
+                         th:text="${post.originalFileName != null}
+                         ? '選択されたファイル: ' + ${post.originalFileName}
+                         : '選択されたファイルはありません'">
+                        選択されたファイルはありません
+                    </div>
+
+                    <div th:if="${post.originalFileName != null}"
+                         class="remove-file-btn"
+                         id="removeFileBtn">
+                        既存ファイルを削除
+                    </div>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="write-buttons">
+                    <a th:href="@{/post/view/{postId}(postId=${post.postId})}"
+                       class="write-btn cancel">← キャンセル</a>
+                    <button type="submit" class="write-btn submit">修正完了</button>
+                </div>
+
+            </form>
+        </div>
+    </section>
+</div>
+
+<script>
+const fileInput = document.getElementById('uploadFile');
+const fileName = document.getElementById('fileName');
+const removeBtn = document.getElementById('removeFileBtn');
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+        fileName.textContent = '選択されたファイル: ' + fileInput.files[0].name;
+    } else {
+        fileName.textContent = '選択されたファイルはありません';
+    }
+});
+
+if(removeBtn){
+    removeBtn.addEventListener('click', () => {
+        let form = fileInput.closest('form');
+
+        let hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'deleteFile';
+        hidden.value = 'true';
+        form.appendChild(hidden);
+
+        fileName.textContent = '選択されたファイルはありません';
+        removeBtn.style.display = 'none';
+    });
+}
+</script>
+
+</body>
+</html>

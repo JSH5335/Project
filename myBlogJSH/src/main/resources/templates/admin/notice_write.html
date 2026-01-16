@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>お知らせ作成 | 管理者</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/admin_notice_write.css">
+
+    <style>
+        /* ===== 파일 업로드 커스텀 ===== */
+        .file-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-btn {
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: #e5e7eb;
+            color: #111827;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .file-upload-btn:hover {
+            background: #d1d5db;
+        }
+
+        .file-upload-text {
+            font-size: 13px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+
+<body th:classappend="${session.darkMode} ? ' dark' : ''">
+
+<div class="layout">
+
+    <div th:replace="admin/fragments/sidebar :: adminSidebar"></div>
+
+    <section class="main">
+
+        <div class="header">
+            <div>
+                <h1>📢 お知らせ作成</h1>
+                <p class="sub-text">新しいお知らせを登録します。</p>
+            </div>
+        </div>
+
+        <div class="card notice-write-card">
+
+            <form action="/admin/notice/write"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="notice-form">
+
+                <!-- 제목 -->
+                <div class="form-group">
+                    <label class="form-label">タイトル</label>
+                    <input type="text"
+                           name="title"
+                           class="form-input"
+                           placeholder="お知らせのタイトルを入力してください"
+                           required>
+                </div>
+
+                <!-- 내용 -->
+                <div class="form-group">
+                    <label class="form-label">内容</label>
+                    <textarea name="content"
+                              class="form-textarea"
+                              rows="10"
+                              placeholder="お知らせの内容を入力してください"
+                              required></textarea>
+                </div>
+
+                <!-- 이미지 업로드 -->
+                <div class="form-group">
+                    <label class="form-label">お知らせ画像（任意）</label>
+
+                    <div class="file-upload-wrapper">
+                        <label class="file-upload-btn" for="imageFile">
+                            ファイルを選択
+                        </label>
+
+                        <span class="file-upload-text" id="fileName">
+                            選択されたファイルはありません
+                        </span>
+
+                        <input type="file"
+                               id="imageFile"
+                               name="imageFile"
+                               accept="image/*"
+                               onchange="updateFileName(this)">
+                    </div>
+                </div>
+
+                <!-- 옵션 -->
+                <div class="form-group form-options">
+                    <label class="checkbox">
+                        <input type="checkbox"
+                               name="visible"
+                               value="1"
+                               checked>
+                        <span>表示</span>
+                    </label>
+
+                    <label class="checkbox">
+                        <input type="checkbox"
+                               name="pinned"
+                               value="1">
+                        <span>PIN固定</span>
+                    </label>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="form-actions">
+                    <button type="submit"
+                            class="notice-btn notice-btn-pin">
+                        登録
+                    </button>
+
+                    <a href="/admin/notice/list"
+                       class="notice-btn notice-btn-hide">
+                        キャンセル
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+        <footer>
+            管理者ページ · Jo's Developer Blog
+        </footer>
+
+    </section>
+
+</div>
+
+<script>
+function updateFileName(input) {
+    const fileName = document.getElementById('fileName');
+    if (input.files.length > 0) {
+        fileName.textContent = input.files[0].name;
+    } else {
+        fileName.textContent = '選択されたファイルはありません';
+    }
+}
+</script>
+
+</body>
+</html>

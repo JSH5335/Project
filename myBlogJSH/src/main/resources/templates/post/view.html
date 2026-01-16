@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Jo's Blog | 記事</title>
+
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/archive.css">
+<link rel="stylesheet" href="/css/post.css">
+<link rel="stylesheet" href="/css/post_comments.css">
+
+<style>
+.post-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* ❗ 클릭은 가능해야 하므로 pointer-events 제거 */
+.like-disabled {
+    background: #e5e7eb !important;
+    color: #9ca3af !important;
+}
+
+/* ===== 첨부파일 카드 ===== */
+.post-attachment {
+    margin: 22px 0;
+    padding: 16px 18px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+}
+
+.attachment-label {
+    font-size: 13px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+/* ===== 댓글 ===== */
+.comment-section {
+    margin-top: 60px;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 28px 32px;
+    box-shadow: 0 20px 40px rgba(15,23,42,0.08);
+}
+
+.comment-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 90px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+}
+
+.comment-submit {
+    margin-top: 10px;
+    padding: 8px 18px;
+    border-radius: 12px;
+    border: none;
+    background: #3b82f6;
+    color: #fff;
+    font-weight: 700;
+}
+
+.comment-item {
+    padding: 16px 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.comment-item.deleted {
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.comment-writer {
+    font-weight: 700;
+}
+
+.comment-date {
+    font-size: 12px;
+    color: #64748b;
+    margin-left: 6px;
+}
+
+/* ===== 댓글 액션 ===== */
+.comment-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 12px;
+}
+
+.comment-btn {
+    background: none;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.comment-btn.delete {
+    color: #dc2626;
+}
+
+.comment-btn.report {
+    color: #f59e0b;
+}
+
+/* ===== 대댓글 ===== */
+.reply-list {
+    margin-top: 14px;
+    padding-left: 20px;
+}
+
+.reply-item {
+    padding: 10px 0;
+    border-left: 2px solid #e5e7eb;
+    padding-left: 14px;
+}
+
+.reply-writer {
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.reply-date {
+    font-size: 11px;
+    color: #64748b;
+    margin-left: 6px;
+}
+
+/* ===== 대댓글 작성 ===== */
+.reply-form {
+    margin-top: 10px;
+    padding-left: 20px;
+    display: none;
+}
+
+.reply-form textarea {
+    width: 100%;
+    min-height: 70px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+/* ===== ✔ 커스텀 경고 모달 ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 24px 28px;
+    width: 360px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.modal-title {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.modal-desc {
+    font-size: 14px;
+    color: #475569;
+    margin-bottom: 22px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.modal-btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.modal-btn.cancel {
+    background: #e5e7eb;
+}
+
+.modal-btn.confirm {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* ===== 🔔 토스트 ===== */
+.toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    z-index: 10000;
+    animation: fadeInOut 3s forwards;
+}
+
+.toast.success { background: #22c55e; }
+.toast.error { background: #ef4444; }
+.toast.warning { background: #f59e0b; }
+.toast.info { background: #3b82f6; }
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(10px); }
+    10% { opacity: 1; transform: translateY(0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+</style>
+</head>
+
+<body th:classappend="${session.darkMode} ? ' dark' : ''">
+<div class="layout">
+<section class="main post-view-container">
+
+<h1 class="post-title" th:text="${post.title}"></h1>
+
+<div class="post-meta">
+    <span th:text="${post.writerName}"></span>
+    <span>·</span>
+    <span th:text="${#temporals.format(post.createdAt,'yyyy.MM.dd HH:mm')}"></span>
+    <span>· 💬 <b th:text="${commentCount}">0</b></span>
+    <span>&nbsp; ❤️ <b th:text="${post.likeCount}">0</b></span>
+</div>
+
+<div class="post-attachment"
+     th:if="${post.filePath != null and post.originalFileName != null}">
+    <div class="attachment-label">📎 添付ファイル</div>
+    <a th:href="@{/post/download/{postId}(postId=${post.postId})}"
+       class="action-btn download"
+       th:text="'⬇ ダウンロード : ' + ${post.originalFileName}">
+    </a>
+</div>
+
+<article class="post-content" th:text="${post.content}"></article>
+
+<!-- ✅ 버튼 한 줄 유지 -->
+<div class="post-actions" th:if="${session.loginUser != null}">
+
+    <!-- ❤️ 좋아요 : 로그인 유저 -->
+    <form th:action="@{/post/like}" method="post">
+        <input type="hidden" name="postId" th:value="${post.postId}">
+        <button type="submit"
+                class="action-btn like"
+                th:classappend="${liked} ? ' like-disabled' : ''">
+            ❤️ いいね
+        </button>
+    </form>
+
+    <!-- ✏️ 수정 / 🗑 삭제 : 작성자 or 관리자 -->
+    <a th:if="${session.loginUser.isAdmin() or session.loginUser.userId == post.writerId}"
+       th:href="@{/post/edit/{id}(id=${post.postId})}"
+       class="action-btn edit">✏️ 修正</a>
+
+    <form th:if="${session.loginUser.isAdmin() or session.loginUser.userId == post.writerId}"
+          th:action="@{/post/delete}" method="post">
+        <input type="hidden" name="postId" th:value="${post.postId}">
+        <button type="submit" class="action-btn delete">🗑 削除</button>
+    </form>
+
+</div>
+
+<section class="comment-section">
+<div class="comment-title">
+    💬 コメント (<span th:text="${commentCount}">0</span>)
+</div>
+
+<form th:if="${session.loginUser != null}"
+      th:action="@{/comment/write}"
+      method="post"
+      class="comment-form">
+    <input type="hidden" name="postId" th:value="${post.postId}">
+    <textarea name="content" placeholder="コメントを入力してください" required></textarea>
+    <button type="submit" class="comment-submit">登録</button>
+</form>
+
+<div th:each="comment : ${commentList}"
+     class="comment-item"
+     th:classappend="${comment.deleted} ? ' deleted' : ''">
+
+    <div>
+        <span class="comment-writer" th:text="${comment.userName}"></span>
+        <span class="comment-date"
+              th:text="${#temporals.format(comment.createdAt,'yyyy.MM.dd HH:mm')}"></span>
+    </div>
+
+    <div th:if="${comment.deleted}">
+    <span th:if="${comment.deletedBy == 'ADMIN'}">
+        管理者により削除されました。
+    </span>
+    <span th:if="${comment.deletedBy == 'USER'}">
+        ユーザーにより削除されました。
+    </span>
+	</div>
+	
+	<form th:if="${session.loginUser.isAdmin() 
+	              and comment.deleted 
+	              and comment.deletedBy == 'ADMIN'}"
+	      th:action="@{/admin/comment/restore}"
+	      method="post">
+	
+	    <input type="hidden" name="commentId" th:value="${comment.commentId}">
+	    <input type="hidden" name="postId" th:value="${post.postId}">
+	
+	    <button type="submit" class="comment-btn">
+	        ♻️ 復元
+	    </button>
+	</form>
+    <div th:if="${!comment.deleted}"
+	     th:text="${comment.originalContent != null 
+	              ? comment.originalContent 
+	              : comment.content}">
+	</div>
+	<!-- ===== 대댓글 목록 ===== -->
+	<div class="reply-list"
+	     th:if="${!comment.deleted and comment.replyList != null and !#lists.isEmpty(comment.replyList)}">
+	
+	    <div th:each="reply : ${comment.replyList}"
+		     class="reply-item"
+		     th:classappend="${reply.deleted} ? ' deleted' : ''">
+		
+		    <div>
+		        <span class="reply-writer" th:text="${reply.userName}"></span>
+		        <span class="reply-date"
+		              th:text="${#temporals.format(reply.createdAt,'yyyy.MM.dd HH:mm')}"></span>
+		    </div>
+		
+		    <!-- 삭제된 대댓글 -->
+		    <div th:if="${reply.deleted}">
+			    <span th:if="${reply.deletedBy == 'ADMIN'}">
+			        管理者により削除されました。
+			    </span>
+			    <span th:if="${reply.deletedBy == 'USER'}">
+			        ユーザーにより削除されました。
+			    </span>
+			</div>
+		    <!-- 정상 대댓글 -->
+		    <div th:if="${!reply.deleted}"
+			     th:text="${reply.originalContent != null 
+			              ? reply.originalContent 
+			              : reply.content}">
+			</div>
+		</div>
+	</div>
+
+	<div class="comment-actions"
+     th:if="${session.loginUser != null and !comment.deleted}">
+
+    <!-- 관리자 SOFT DELETE -->
+    <form th:if="${session.loginUser.isAdmin()}"
+          th:action="@{/admin/comment/soft-delete}"
+          method="post">
+        <input type="hidden" name="commentId" th:value="${comment.commentId}">
+        <input type="hidden" name="postId" th:value="${post.postId}">
+        <button type="submit" class="comment-btn delete">🗑 削除</button>
+    </form>
+
+    <!-- 관리자 HARD DELETE -->
+    <form th:if="${session.loginUser.isAdmin()}"
+          th:action="@{/admin/comment/hard-delete}"
+          method="post">
+        <input type="hidden" name="commentId" th:value="${comment.commentId}">
+        <input type="hidden" name="postId" th:value="${post.postId}">
+        <button type="submit" class="comment-btn delete">❌ 完全削除</button>
+    </form>
+
+    <!-- 회원 삭제 -->
+    <form th:if="${!session.loginUser.isAdmin() and session.loginUser.userId == comment.userId}"
+          th:action="@{/comment/delete}"
+          method="post">
+        <input type="hidden" name="commentId" th:value="${comment.commentId}">
+        <input type="hidden" name="postId" th:value="${post.postId}">
+        <button type="submit" class="comment-btn delete">🗑 削除</button>
+    </form>
+
+    <!-- 답글 -->
+    <button type="button"
+            class="comment-btn reply-toggle"
+            th:attr="data-target='reply-'+${comment.commentId}">
+        ↩ 返信
+    </button>
+
+    <!-- 신고 -->
+    <form th:if="${!session.loginUser.isAdmin() and session.loginUser.userId != comment.userId}"
+          th:action="@{/comment/report}"
+          method="post"
+          class="report-form">
+        <input type="hidden" name="commentId" th:value="${comment.commentId}">
+        <input type="hidden" name="postId" th:value="${post.postId}">
+        <input type="hidden" name="reason" value="不適切なコメント">
+        <button type="button"
+                class="comment-btn report"
+                onclick="openReportModal(this.form)">
+            🚨 通報
+        </button>
+    </form>
+
+</div>
+
+    <form th:id="'reply-'+${comment.commentId}"
+      class="reply-form"
+      th:if="${!comment.deleted}"
+      th:action="@{/comment/write}"
+      method="post">
+        <input type="hidden" name="postId" th:value="${post.postId}">
+        <input type="hidden" name="parentId" th:value="${comment.commentId}">
+        <textarea name="content" placeholder="返信を入力してください" required></textarea>
+        <button type="submit" class="comment-submit">返信</button>
+    </form>
+
+</div>
+</section>
+
+</section>
+</div>
+
+<!-- ✔ 신고 경고 모달 -->
+<div id="reportModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-title">⚠️ コメント通報</div>
+        <div class="modal-desc">このコメントを通報しますか？</div>
+        <div class="modal-actions">
+            <button class="modal-btn cancel" onclick="closeReportModal()">キャンセル</button>
+            <button class="modal-btn confirm" onclick="submitReport()">通報する</button>
+        </div>
+    </div>
+</div>
+
+<!-- 🔔 토스트 -->
+<div th:if="${toastMsg}"
+     class="toast"
+     th:text="${toastMsg}"
+     th:classappend="' ' + ${toastType}">
+</div>
+
+<script>
+let reportForm = null;
+
+function openReportModal(form) {
+    reportForm = form;
+    document.getElementById('reportModal').style.display = 'flex';
+}
+
+function closeReportModal() {
+    reportForm = null;
+    document.getElementById('reportModal').style.display = 'none';
+}
+
+function submitReport() {
+    if (reportForm) {
+        reportForm.submit();
+    }
+}
+</script>
+
+<script>
+document.querySelectorAll('.reply-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const target = document.getElementById(btn.dataset.target);
+        if (target) {
+            target.style.display =
+                target.style.display === 'none' || target.style.display === ''
+                ? 'block'
+                : 'none';
+        }
+    });
+});
+</script>
+<!-- 📄 리스트로 돌아가기 버튼 -->
+<a href="/archive" class="floating-list-btn">
+    📄 一覧へ
+</a>
+</body>
+</html>

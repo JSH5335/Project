@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>ARCHIVE | Jo's Blog</title>
+
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/archive.css">
+
+<style>
+/* ❤️ 좋아요 비활성화 표시 */
+.archive-like-disabled {
+    opacity: 0.7;
+    cursor: default;
+    user-select: none;
+}
+
+/* 💬 댓글 버튼 */
+.archive-comment-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #334155;
+}
+</style>
+</head>
+
+<body th:classappend="${session.darkMode} ? ' dark' : ''">
+
+<div class="layout">
+
+    <section class="archive-container">
+
+        <!-- ===== ARCHIVE HEADER ===== -->
+        <div class="archive-header">
+
+            <div class="archive-header-left">
+                <span class="archive-icon">📚</span>
+
+                <div class="archive-title-wrap">
+                    <h1 class="archive-title">ARCHIVE</h1>
+                    <p class="archive-desc">
+                        開発の記録や考えを、ひとつずつ丁寧にまとめています。
+                        <span class="archive-count">
+                            全 <b th:text="${totalPage > 0 ? totalPage * 10 : 0}">0</b> 件
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 🔍 검색 + 정렬 ===== -->
+        <form method="get" action="/archive" class="archive-search-bar">
+
+            <input type="text"
+                   name="keyword"
+                   placeholder="タイトルまたは内容で検索"
+                   th:value="${keyword}"
+                   class="archive-search-input"/>
+
+            <select name="sort" class="archive-sort-select">
+                <option value="latest" th:selected="${sort == 'latest'}">新着順</option>
+                <option value="view" th:selected="${sort == 'view'}">閲覧数順</option>
+                <option value="like" th:selected="${sort == 'like'}">いいね順</option>
+            </select>
+
+            <button type="submit" class="archive-search-btn">
+                🔍 検索
+            </button>
+
+        </form>
+
+        <!-- ===== ARCHIVE LIST ===== -->
+        <div class="archive-list">
+
+            <article class="archive-item"
+                     th:each="post : ${postList}"
+                     th:classappend="
+                        ${post.pinned} ? ' pinned' :
+                        (${post.writerRole == 'ADMIN'} ? ' admin' : '')
+                     ">
+
+                <a th:href="@{/post/view/{id}(id=${post.postId})}"
+                   class="archive-link">
+
+                    <span class="archive-title-text">
+                        <span th:text="${post.title}">記事タイトル</span>
+                    </span>
+
+                    <div class="archive-meta">
+                        <span th:text="${post.writerName}">作成者</span>
+                        <span>·</span>
+                        <span th:text="${#temporals.format(post.createdAt,'yyyy.MM.dd')}">
+                            日付
+                        </span>
+
+                        <span th:if="${post.pinned}">📌 PIN</span>
+                        <span th:if="${post.writerRole == 'ADMIN'}">👑 ADMIN</span>
+                    </div>
+
+                    <!-- 📊 하단 정보 -->
+                    <div class="archive-meta archive-stats">
+                        <span>👁 <b th:text="${post.viewCount}">0</b></span>
+
+                        <span class="archive-like-disabled">
+                            ❤️ <b th:text="${post.likeCount}">0</b>
+                        </span>
+
+                        <!-- 💬 댓글 버튼 (항상 표시) -->
+                        <span class="archive-comment-btn">
+                            💬 <b th:text="${post.commentCount}">0</b>
+                        </span>
+                    </div>
+
+                </a>
+            </article>
+
+            <div th:if="${postList.isEmpty()}"
+                 class="archive-empty">
+                検索結果がありません。
+            </div>
+
+        </div>
+
+        <!-- ===== 📄 ページング ===== -->
+        <div class="archive-pagination" th:if="${totalPage > 1}">
+
+            <a th:each="i : ${#numbers.sequence(1, totalPage)}"
+               th:href="@{/archive(page=${i}, keyword=${keyword}, sort=${sort})}"
+               th:text="${i}"
+               th:classappend="${i == currentPage} ? ' active' : ''">
+            </a>
+
+        </div>
+
+    </section>
+
+</div>
+
+<div class="archive-float-actions">
+
+    <a href="/" class="archive-float-btn home">🏠 ホームへ</a>
+
+    <a th:if="${session.loginUser != null}"
+       href="/post/write"
+       class="archive-float-btn write">
+        ✍️ 新規作成
+    </a>
+
+</div>
+
+</body>
+</html>

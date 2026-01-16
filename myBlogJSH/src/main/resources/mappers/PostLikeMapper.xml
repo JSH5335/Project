@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mnu.myblog.mapper.PostLikeMapper">
+
+    <!-- ===============================
+         ❤️ 좋아요 존재 여부 (중복 방지)
+         post_id + user_id 유니크 기준
+         =============================== -->
+    <select id="existsLike" resultType="int">
+        SELECT COUNT(*)
+        FROM post_like
+        WHERE post_id = #{postId}
+          AND user_id = #{userId}
+    </select>
+
+    <!-- ===============================
+         ❤️ 좋아요 추가
+         (Service 레벨에서 중복 차단)
+         =============================== -->
+    <insert id="insertLike">
+        INSERT INTO post_like (
+            post_id,
+            user_id,
+            created_at
+        ) VALUES (
+            #{postId},
+            #{userId},
+            NOW()
+        )
+    </insert>
+
+    <!-- ===============================
+         ❌ 좋아요 삭제 (미사용)
+         =============================== -->
+    <delete id="deleteLike">
+        DELETE FROM post_like
+        WHERE post_id = #{postId}
+          AND user_id = #{userId}
+    </delete>
+
+</mapper>

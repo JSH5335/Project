@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>페이지를 찾을 수 없습니다</title>
+
+    <!-- 공통 스타일 -->
+    <link rel="stylesheet" href="/css/main.css">
+</head>
+
+<body th:classappend="${session.darkMode} ? ' dark' : ''">
+
+<div class="layout">
+
+    <section class="main" style="text-align:center; padding:120px 20px;">
+
+        <h1 style="font-size:64px; margin-bottom:20px;">
+            😢 404
+        </h1>
+
+        <p style="font-size:18px; color:#64748b; margin-bottom:30px;">
+            요청하신 페이지를 찾을 수 없습니다.
+        </p>
+
+        <a href="/"
+           class="action-btn primary">
+            메인으로 돌아가기
+        </a>
+
+    </section>
+
+</div>
+
+</body>
+</html>

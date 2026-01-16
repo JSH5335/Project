@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>管理者 | 投稿管理</title>
+
+<link rel="stylesheet" href="/css/main.css">
+<link rel="stylesheet" href="/css/admin.css">
+<link rel="stylesheet" href="/css/admin_posts.css">
+</head>
+
+<body th:classappend="${session.darkMode == true} ? ' dark' : ''">
+
+<div class="layout">
+
+    <!-- ===== 관리자 사이드바 ===== -->
+    <div th:replace="admin/fragments/sidebar :: adminSidebar"></div>
+
+    <!-- ===== 메인 ===== -->
+    <section class="main">
+
+        <div class="header">
+            <h1>🛠 投稿管理</h1>
+            <p class="sub-text">全ての投稿を管理します</p>
+        </div>
+
+        <!-- ===== 🔍 검색 + 필터 ===== -->
+        <form class="admin-search-bar" method="get" action="/admin/posts">
+
+            <input type="text"
+                   name="keyword"
+                   placeholder="🔍 タイトル・本文で投稿を検索"
+                   th:value="${keyword}">
+
+            <select name="status">
+                <option value="">📂 すべての状態</option>
+                <option value="VISIBLE" th:selected="${status == 'VISIBLE'}">👁 公開</option>
+                <option value="HIDDEN" th:selected="${status == 'HIDDEN'}">🙈 非公開</option>
+                <option value="DELETED" th:selected="${status == 'DELETED'}">🗑 削除</option>
+            </select>
+
+            <button type="submit">検索</button>
+        </form>
+
+        <!-- ===== 🧹 삭제된 게시글 정리 버튼 (표 우상단) ===== -->
+        <div th:if="${status == 'DELETED'}" class="cleanup-bar-top">
+            <form th:action="@{/admin/posts/cleanup}" method="post">
+                <button type="submit" class="btn-cleanup">
+                    🧹 削除済み投稿を整理
+                </button>
+            </form>
+        </div>
+
+        <!-- ===== 테이블 ===== -->
+        <div class="admin-table-card">
+
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>番号</th>
+                        <th>タイトル</th>
+                        <th>作成者</th>
+                        <th>閲覧数</th>
+                        <th>❤️</th>
+                        <th>固定</th>
+                        <th>状態</th>
+                        <th>管理</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="post : ${postList}"
+                        th:classappend="
+                            ${post.isDeleted} ? 'row-deleted' :
+                            (${post.isVisible != true} ? 'row-hidden' :
+                            (${post.isPinned} ? 'row-pinned' :
+                            (${post.writerRole == 'ADMIN'} ? 'row-admin' : '')))
+                        ">
+
+                        <td th:text="${post.postId}"></td>
+
+                        <td class="title">
+                            <span th:if="${post.isDeleted}" class="badge badge-delete">🗑 削除済み</span>
+                            <span th:if="${post.isDeleted != true and post.isVisible != true}"
+                                  class="badge badge-hidden">👁 非公開</span>
+
+                            <a th:if="${post.isDeleted != true and post.isVisible == true}"
+                               th:href="@{/post/view/{id}(id=${post.postId})}"
+                               th:text="${post.title}"
+                               target="_blank"
+                               class="post-link"></a>
+
+                            <span th:if="${post.isDeleted == true or post.isVisible != true}"
+                                  th:text="${post.title}"
+                                  class="post-title-disabled"></span>
+
+                            <span th:if="${post.isPinned}" class="badge badge-pin">📌 固定</span>
+                        </td>
+
+                        <td th:text="${post.writerName}"></td>
+                        <td th:text="${post.viewCount}"></td>
+                        <td th:text="${post.likeCount}"></td>
+
+                        <!-- ===== 📌 고정 ===== -->
+                        <td>
+                            <form th:if="${post.isDeleted != true}"
+                                  th:action="@{/admin/posts/pin}"
+                                  method="post">
+                                <input type="hidden" name="postId" th:value="${post.postId}">
+                                <button type="submit"
+                                        th:class="${post.isPinned} ? 'btn btn-unpin' : 'btn btn-pin'">
+                                    <span th:text="${post.isPinned} ? '❌' : '📌'"></span>
+                                </button>
+                            </form>
+                        </td>
+
+                        <!-- ===== 상태 ===== -->
+                        <td>
+                            <span th:if="${post.isDeleted}" class="badge badge-off">DELETED</span>
+                            <span th:if="${!post.isDeleted and !post.isVisible}" class="badge badge-off">HIDDEN</span>
+                            <span th:if="${!post.isDeleted and post.isVisible}" class="badge badge-on">ON</span>
+                        </td>
+
+                        <!-- ===== 관리 (가로 3버튼 고정) ===== -->
+                        <td>
+                            <div class="actions">
+
+                                <!-- ✏️ 수정 -->
+                                <a th:if="${post.isDeleted != true and post.isVisible == true}"
+                                   th:href="@{/post/edit/{id}(id=${post.postId})}"
+                                   class="btn btn-edit"
+                                   target="_blank">✏️</a>
+
+                                <!-- 👁 공개 / 비공개 -->
+                                <form th:if="${post.isDeleted != true}"
+                                      th:action="@{/admin/posts/hide}"
+                                      method="post">
+                                    <input type="hidden" name="postId" th:value="${post.postId}">
+                                    <button type="submit"
+                                            th:class="${post.isVisible} ? 'btn btn-hide' : 'btn btn-restore'">
+                                        <span th:text="${post.isVisible} ? '👁' : '👁‍🗨'"></span>
+                                    </button>
+                                </form>
+
+                                <!-- 🗑 삭제 (전용 색상) -->
+                                <form th:if="${post.isDeleted != true}"
+                                      th:action="@{/admin/posts/delete}"
+                                      method="post">
+                                    <input type="hidden" name="postId" th:value="${post.postId}">
+                                    <button type="submit" class="btn btn-danger">🗑</button>
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- ===== ページネーション ===== -->
+            <div class="pagination" th:if="${totalPages > 1}">
+                <th:block th:with="
+                    startPage=${(currentPage / 5) * 5},
+                    endPage=${T(java.lang.Math).min(startPage + 4, totalPages - 1)}
+                ">
+                    <a th:if="${startPage > 0}"
+                       th:href="@{/admin/posts(page=${startPage - 1}, keyword=${keyword}, status=${status})}">«</a>
+
+                    <a th:if="${currentPage > 0}"
+                       th:href="@{/admin/posts(page=${currentPage - 1}, keyword=${keyword}, status=${status})}">‹</a>
+
+                    <a th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                       th:href="@{/admin/posts(page=${i}, keyword=${keyword}, status=${status})}"
+                       th:text="${i + 1}"
+                       th:classappend="${i == currentPage} ? ' active' : ''"></a>
+
+                    <a th:if="${currentPage < totalPages - 1}"
+                       th:href="@{/admin/posts(page=${currentPage + 1}, keyword=${keyword}, status=${status})}">›</a>
+
+                    <a th:if="${endPage < totalPages - 1}"
+                       th:href="@{/admin/posts(page=${endPage + 1}, keyword=${keyword}, status=${status})}">»</a>
+                </th:block>
+            </div>
+
+        </div>
+
+        <footer>管理者ページ · Jo's Developer Blog</footer>
+
+    </section>
+</div>
+
+</body>
+</html>

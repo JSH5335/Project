@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>管理者ログ | 管理者</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/admin_log.css">
+</head>
+
+<body th:classappend="${session.darkMode} ? ' dark' : ''">
+
+<div class="layout">
+
+    <div th:replace="admin/fragments/sidebar :: adminSidebar"></div>
+
+    <section class="main">
+
+        <div class="header">
+            <div>
+                <h1>📋 管理者ログ</h1>
+                <p class="sub-text">管理者による操作履歴</p>
+            </div>
+
+            <form action="/admin/logs/delete-all" method="post">
+                <button type="button"
+                        class="notice-btn notice-btn-delete"
+                        onclick="openConfirm(this.form, 'すべてのログを削除しますか？')">
+                    🗑 全削除
+                </button>
+            </form>
+        </div>
+
+        <div class="card">
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th style="width:70px;">No</th>
+                    <th style="width:140px;">管理者</th>
+                    <th style="width:200px;">操作内容</th>
+                    <th>対象</th>
+                    <th style="width:180px;">日時</th>
+                    <th style="width:90px;">管理</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="log, stat : ${logList}">
+                    <td th:text="${stat.count}"></td>
+
+                    <td>
+                        <span class="badge-admin"
+                              th:text="${log.adminId}"></span>
+                    </td>
+
+                    <!-- ✅ action은 String이므로 switch로 처리 -->
+                    <td>
+                        <span class="badge-action">
+                            <span th:switch="${log.action}">
+                                <!-- POST -->
+                                <span th:case="'POST_DELETE'">🗑 投稿削除</span>
+                                <span th:case="'POST_RESTORE'">♻️ 投稿復元</span>
+                                <span th:case="'POST_HIDE'">🙈 投稿非表示</span>
+                                <span th:case="'POST_SHOW'">👁 投稿表示</span>
+                                <span th:case="'POST_PIN'">📌 投稿固定</span>
+                                <span th:case="'POST_UNPIN'">📍 固定解除</span>
+
+                                <!-- COMMENT -->
+                                <span th:case="'COMMENT_DELETE'">🗑 コメント削除</span>
+                                <span th:case="'COMMENT_REPORT_SOFT_DELETE'">🚨 通報コメント非公開</span>
+                                <span th:case="'COMMENT_REPORT_HARD_DELETE'">⛔ 通報コメント完全削除</span>
+                                <span th:case="'COMMENT_REPORT_IGNORE'">✅ 通報無視</span>
+
+                                <!-- USER -->
+                                <span th:case="'USER_ROLE_UPDATE'">👑 権限変更</span>
+                                <span th:case="'USER_BAN'">🚫 会員停止</span>
+                                <span th:case="'USER_UNBAN'">♻️ 停止解除</span>
+
+                                <!-- NOTICE -->
+                                <span th:case="'NOTICE_CREATE'">📝 お知らせ作成</span>
+                                <span th:case="'NOTICE_DELETE'">🗑 お知らせ削除</span>
+                                <span th:case="'NOTICE_PIN'">📌 お知らせ固定</span>
+                                <span th:case="'NOTICE_UNPIN'">📍 固定解除</span>
+                                <span th:case="'NOTICE_VISIBLE'">👁 表示切替</span>
+
+                                <!-- DEFAULT -->
+                                <span th:case="*">その他</span>
+                            </span>
+                        </span>
+                    </td>
+
+                    <td class="log-target"
+                        th:text="${log.target}"></td>
+
+                    <td th:text="${#temporals.format(log.createdAt,'yyyy.MM.dd HH:mm')}"></td>
+
+                    <td>
+                        <form action="/admin/logs/delete"
+                              method="post"
+                              class="inline-form">
+                            <input type="hidden"
+                                   name="logId"
+                                   th:value="${log.id}">
+                            <button type="button"
+                                    class="notice-btn notice-btn-delete"
+                                    onclick="openConfirm(this.form, 'このログを削除しますか？')">
+                                削除
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(logList)}">
+                    <td colspan="6" class="empty-row">
+                        ログは存在しません。
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            管理者ページ · Jo's Developer Blog
+        </footer>
+    </section>
+</div>
+
+<!-- ===== 確認モーダル ===== -->
+<div id="confirmOverlay" class="confirm-overlay">
+    <div class="confirm-box">
+        <div class="icon">⚠️</div>
+        <h3 id="confirmTitle">本当に削除しますか？</h3>
+        <p>
+            この操作は <b style="color:#ef4444;">取り消すことができません。</b><br>
+            管理者ログは完全に削除されます。
+        </p>
+
+        <div class="confirm-actions">
+            <button type="button"
+                    class="notice-btn notice-btn-delete"
+                    id="confirmYes">
+                削除
+            </button>
+            <button type="button"
+                    class="notice-btn notice-btn-hide"
+                    onclick="closeConfirm()">
+                キャンセル
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"
+     th:if="${toastMsg}"
+     th:text="${toastMsg}"
+     th:class="'toast ' + ${toastType}">
+</div>
+
+<script>
+    let targetForm = null;
+
+    function openConfirm(form, message) {
+        targetForm = form;
+        document.getElementById('confirmTitle').innerText = message;
+        document.getElementById('confirmOverlay').style.display = 'flex';
+    }
+
+    function closeConfirm() {
+        targetForm = null;
+        document.getElementById('confirmOverlay').style.display = 'none';
+    }
+
+    document.getElementById('confirmYes').addEventListener('click', function () {
+        if (targetForm) {
+            targetForm.submit();
+            closeConfirm();
+        }
+    });
+</script>
+
+</body>
+</html>

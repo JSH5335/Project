@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>会員管理 | 管理者</title>
+
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="/css/admin_user.css">
+
+    <style>
+        .toast {
+            position: fixed;
+    		bottom: 20px;
+    		right: 20px;
+
+            /* 🔥 배너화 방지 핵심 */
+            display: inline-flex;
+            align-items: center;
+
+            max-width: 260px;
+            max-height: 64px;
+            height: auto;
+            width: auto;
+
+            padding: 8px 14px;
+            border-radius: 6px;
+
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.35;
+
+            color: #ffffff;
+            background-clip: padding-box;
+
+            white-space: normal;
+            word-break: break-word;
+
+            z-index: 9999;
+            opacity: 0.95;
+
+            box-shadow: 0 8px 20px rgba(0,0,0,0.22);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .toast.success { background-color: #34d399; }
+        .toast.warning { background-color: #f87171; }
+        .toast.error   { background-color: #ef4444; }
+
+        .toast.hide {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body th:classappend="${session.darkMode == true} ? ' dark' : ''">
+
+<div class="layout">
+
+    <div th:replace="admin/fragments/sidebar :: adminSidebar"></div>
+
+    <section class="main">
+
+        <div class="header">
+            <h1>👥 会員管理</h1>
+        </div>
+
+        <div class="card">
+
+            <table class="admin-table">
+                <thead>
+                <tr>
+                    <th>No</th>
+                    <th>ID</th>
+                    <th>名前</th>
+                    <th>電話番号</th>
+                    <th>権限</th>
+                    <th>登録日</th>
+                    <th>状態</th>
+                    <th>管理</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="user, stat : ${userList}"
+                    th:classappend="${user.role == 'ADMIN'} ? 'admin-row' : ''">
+
+                    <td th:text="${stat.count}"></td>
+
+                    <td>
+                        <span th:if="${user.role == 'ADMIN'}" class="admin-crown">👑</span>
+                        <span th:text="${user.userId}"></span>
+                    </td>
+
+                    <td th:text="${user.userName}"></td>
+                    <td th:text="${user.phone}"></td>
+
+                    <td>
+                        <span th:text="${user.role}"
+                              th:classappend="${user.role == 'ADMIN'} ? 'role-admin' : 'role-user'">
+                        </span>
+                    </td>
+
+                    <td th:text="${#temporals.format(user.createdAt,'yyyy.MM.dd')}"></td>
+
+                    <td>
+                        <span th:if="${user.banned == true}" class="status-banned">停止</span>
+                        <span th:if="${user.banned != true}" class="status-active">有効</span>
+                    </td>
+
+                    <td>
+                        <span th:if="${user.userId == session.loginUser.userId}"
+                              class="self-label">
+                            本人
+                        </span>
+
+                        <form th:if="${user.userId != session.loginUser.userId}"
+                              method="post"
+                              action="/admin/users/role"
+                              class="inline-form">
+                            <input type="hidden" name="userId" th:value="${user.userId}">
+                            <input type="hidden" name="role"
+                                   th:value="${user.role == 'ADMIN' ? 'USER' : 'ADMIN'}">
+                            <button type="submit"
+                                    th:text="${user.role == 'ADMIN'} ? '管理者解除' : '管理者指定'"
+                                    th:class="${user.role == 'ADMIN'} ? 'btn-admin-remove' : 'btn-admin-add'">
+                            </button>
+                        </form>
+
+                        <form th:if="${user.banned != true}"
+                              method="post"
+                              action="/admin/users/ban"
+                              class="inline-form btn-action">
+                            <input type="hidden" name="userId" th:value="${user.userId}">
+                            <input type="hidden" name="reason" value="管理者による停止">
+                            <button type="submit" class="btn-ban">停止</button>
+                        </form>
+
+                        <form th:if="${user.banned == true}"
+                              method="post"
+                              action="/admin/users/unban"
+                              class="inline-form btn-action">
+                            <input type="hidden" name="userId" th:value="${user.userId}">
+                            <button type="submit" class="btn-unban">停止解除</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+        <footer>
+            管理者ページ · Jo's Developer Blog
+        </footer>
+
+    </section>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btnForms = document.querySelectorAll('.btn-action');
+
+    btnForms.forEach(form => {
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            try {
+                const res = await fetch(form.action, {
+                    method: 'POST',
+                    body: new URLSearchParams(formData)
+                });
+
+                if (res.ok) {
+                    const isBan = form.querySelector('.btn-ban') !== null;
+                    showToast(
+                        isBan ? '会員が停止されました。' : '会員の停止が解除されました。',
+                        isBan ? 'warning' : 'success'
+                    );
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    showToast('処理中にエラーが発生しました。', 'error');
+                }
+            } catch (err) {
+                showToast('サーバーに接続できません。', 'error');
+            }
+        });
+    });
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 300);
+        }, 2000);
+    }
+});
+</script>
+
+</body>
+</html>

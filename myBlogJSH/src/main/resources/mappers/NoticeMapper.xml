@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mnu.myblog.mapper.NoticeMapper">
+
+    <!-- ================= ユーザー ================= -->
+
+    <!-- お知らせ一覧（ユーザー） -->
+    <select id="selectNoticeList"
+            parameterType="map"
+            resultType="com.mnu.myblog.domain.NoticeDTO">
+        SELECT
+            notice_id   AS noticeId,
+            title,
+            content,
+            image_path  AS imagePath,
+            visible,
+            pinned,
+            views,
+            check_count AS checkCount,
+            created_at  AS createdAt
+        FROM notice
+        WHERE visible = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+                title   LIKE CONCAT('%', #{keyword}, '%')
+                OR content LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY pinned DESC, created_at DESC
+    </select>
+
+    <!-- ⭐ メインページ最新お知らせ 3件 -->
+    <select id="selectLatestNotices"
+            resultType="com.mnu.myblog.domain.NoticeDTO">
+        SELECT
+            notice_id   AS noticeId,
+            title,
+            image_path  AS imagePath,
+            pinned,
+            created_at  AS createdAt
+        FROM notice
+        WHERE visible = 1
+        ORDER BY pinned DESC, created_at DESC
+        LIMIT 3
+    </select>
+
+    <!-- お知らせ詳細 -->
+    <select id="selectNotice"
+            parameterType="long"
+            resultType="com.mnu.myblog.domain.NoticeDTO">
+        SELECT
+            notice_id   AS noticeId,
+            title,
+            content,
+            image_path  AS imagePath,
+            visible,
+            pinned,
+            views,
+            check_count AS checkCount,
+            created_at  AS createdAt
+        FROM notice
+        WHERE notice_id = #{noticeId}
+    </select>
+
+    <!-- ================= 管理者 ================= -->
+
+    <!-- 管理者お知らせ一覧 -->
+    <select id="selectAdminNoticeList"
+            parameterType="map"
+            resultType="com.mnu.myblog.domain.NoticeDTO">
+        SELECT
+            notice_id   AS noticeId,
+            title,
+            content,
+            image_path  AS imagePath,
+            visible,
+            pinned,
+            views,
+            check_count AS checkCount,
+            created_at  AS createdAt
+        FROM notice
+        <if test="keyword != null and keyword != ''">
+            WHERE (
+                title   LIKE CONCAT('%', #{keyword}, '%')
+                OR content LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY pinned DESC, created_at DESC
+    </select>
+
+    <!-- お知らせ作成 -->
+    <insert id="insertNotice"
+            parameterType="com.mnu.myblog.domain.NoticeDTO">
+        INSERT INTO notice (
+            title,
+            content,
+            image_path,
+            visible,
+            pinned
+        )
+        VALUES (
+            #{title},
+            #{content},
+            #{imagePath},
+            #{visible},
+            #{pinned}
+        )
+    </insert>
+
+    <!-- お知らせ削除 -->
+    <delete id="deleteNotice">
+        DELETE FROM notice
+        WHERE notice_id = #{noticeId}
+    </delete>
+
+    <!-- 表示 / 非表示 切替 -->
+    <update id="toggleVisible">
+        UPDATE notice
+        SET visible = IF(visible = 1, 0, 1)
+        WHERE notice_id = #{noticeId}
+    </update>
+
+    <!-- 📌 PIN 状態更新（0 / 1 明示） -->
+    <update id="updatePinned">
+        UPDATE notice
+        SET pinned = #{pinned}
+        WHERE notice_id = #{noticeId}
+    </update>
+
+    <!-- ================= カウント ================= -->
+
+    <update id="increaseViews">
+        UPDATE notice
+        SET views = views + 1
+        WHERE notice_id = #{noticeId}
+    </update>
+
+    <update id="increaseCheckCount">
+        UPDATE notice
+        SET check_count = check_count + 1
+        WHERE notice_id = #{noticeId}
+    </update>
+
+    <!-- ================= 統計 ================= -->
+
+    <select id="getNoticeStats"
+            resultType="map">
+        SELECT
+            COUNT(*)         AS totalCount,
+            SUM(views)       AS totalViews,
+            SUM(check_count) AS totalChecks
+        FROM notice
+    </select>
+
+</mapper>

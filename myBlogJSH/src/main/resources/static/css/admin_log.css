@@ -1,0 +1,260 @@
+@charset "UTF-8";
+
+/* ==================================================
+   📋 管理者ログ専用 CSS
+================================================== */
+
+/* ===============================
+   📦 テーブル基本
+================================ */
+.admin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.admin-table thead th {
+    font-size: 13px;
+    font-weight: 800;
+    color: #374151;
+    background: #f9fafb;
+    padding: 14px 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-table tbody td {
+    font-size: 13px;
+    color: #111827;
+    padding: 14px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* ===============================
+   👤 管理者バッジ
+================================ */
+.badge-admin {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+/* ===============================
+   🔖 アクションバッジ（共通）
+================================ */
+.badge-action span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+    background: #f1f5f9;
+    color: #334155;
+}
+
+/* ===============================
+   🟦 POST
+================================ */
+.badge-action span:has-text("投稿"),
+.badge-action span:has-text("記事") {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+/* ===============================
+   🟠 COMMENT
+================================ */
+.badge-action span:has-text("コメント") {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+/* ===============================
+   🟣 NOTICE
+================================ */
+.badge-action span:has-text("お知らせ") {
+    background: #ede9fe;
+    color: #6d28d9;
+}
+
+/* ===============================
+   🔴 USER
+================================ */
+.badge-action span:has-text("権限"),
+.badge-action span:has-text("ユーザー"),
+.badge-action span:has-text("会員") {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ===============================
+   🎯 対象
+================================ */
+.admin-table td:nth-child(4) {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+    color: #475569;
+}
+
+/* ===============================
+   🕒 日時
+================================ */
+.admin-table td:nth-child(5) {
+    font-size: 12px;
+    color: #64748b;
+}
+
+/* ===============================
+   🗑 削除ボタン
+================================ */
+.notice-btn-delete {
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    background: #fee2e2;
+    color: #b91c1c;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.notice-btn-delete:hover {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 6px 16px rgba(239,68,68,0.35);
+}
+
+/* ===============================
+   🚫 空ログ
+================================ */
+.empty-row {
+    text-align: center;
+    padding: 32px 0;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* ===============================
+   ⚠️ 確認モーダル
+================================ */
+.confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.confirm-box {
+    width: 420px;
+    max-width: 90%;
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 28px 26px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+    text-align: center;
+    animation: confirm-pop 0.2s ease-out;
+}
+
+@keyframes confirm-pop {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ==================================================
+   🌙 ダークモード補正（追加）
+================================================== */
+
+body.dark .admin-table thead th {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-sub);
+    border-bottom-color: rgba(255,255,255,0.08);
+}
+
+body.dark .admin-table tbody td {
+    color: var(--text-main);
+    border-bottom-color: rgba(255,255,255,0.06);
+}
+
+body.dark .admin-table tbody tr:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+/* 管理者バッジ */
+body.dark .badge-admin {
+    background: rgba(56,189,248,0.22);
+    color: #7dd3fc;
+}
+
+/* アクションバッジ共通 */
+body.dark .badge-action span {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-main);
+}
+
+/* 種類別バッジ */
+body.dark .badge-action span:has-text("投稿"),
+body.dark .badge-action span:has-text("記事") {
+    background: rgba(59,130,246,0.25);
+    color: #bfdbfe;
+}
+
+body.dark .badge-action span:has-text("コメント") {
+    background: rgba(251,146,60,0.25);
+    color: #fed7aa;
+}
+
+body.dark .badge-action span:has-text("お知らせ") {
+    background: rgba(139,92,246,0.25);
+    color: #ddd6fe;
+}
+
+body.dark .badge-action span:has-text("権限"),
+body.dark .badge-action span:has-text("ユーザー"),
+body.dark .badge-action span:has-text("会員") {
+    background: rgba(239,68,68,0.25);
+    color: #fecaca;
+}
+
+/* 対象 / 日時 */
+body.dark .admin-table td:nth-child(4),
+body.dark .admin-table td:nth-child(5) {
+    color: var(--text-sub);
+}
+
+/* 削除ボタン */
+body.dark .notice-btn-delete {
+    background: rgba(239,68,68,0.25);
+    color: #fecaca;
+}
+
+body.dark .notice-btn-delete:hover {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* 確認モーダル */
+body.dark .confirm-box {
+    background: var(--bg-card);
+    box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+}
