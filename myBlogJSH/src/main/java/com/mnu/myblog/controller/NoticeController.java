@@ -84,11 +84,12 @@ public class NoticeController {
             }
         }
 
-        /* ===== 체크 여부 판단 (null 방지 핵심) ===== */
+        /* ===== 체크 여부 판단 (유저별 쿠키 기준) ===== */
         boolean checked = false;
 
         if (loginUser != null) {
-            String checkCookieName = "notice_check_" + noticeId + "_" + loginUser.getId();
+            String checkCookieName =
+                    "notice_check_" + noticeId + "_" + loginUser.getUserId();
 
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
@@ -105,7 +106,7 @@ public class NoticeController {
 
         model.addAttribute("notice", notice);
         model.addAttribute("loginUser", loginUser);
-        model.addAttribute("checked", checked); // ⭐ 반드시 항상 내려줌
+        model.addAttribute("checked", checked);
 
         return "notice/view";
     }
@@ -131,7 +132,8 @@ public class NoticeController {
             return "redirect:/login";
         }
 
-        String cookieName = "notice_check_" + noticeId + "_" + loginUser.getId();
+        String cookieName =
+                "notice_check_" + noticeId + "_" + loginUser.getUserId();
         boolean checked = false;
 
         Cookie[] cookies = request.getCookies();
