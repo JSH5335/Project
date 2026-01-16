@@ -25,6 +25,9 @@ public class AdminLogController {
     public AdminLogController(AdminLogService adminLogService) {
         this.adminLogService = adminLogService;
     }
+    
+    
+    
 
     /* ===============================
        管理者ログ一覧

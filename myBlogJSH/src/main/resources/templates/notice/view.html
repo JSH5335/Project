@@ -28,8 +28,7 @@
                 <div class="notice-view-meta">
                     <span>
                         📅
-                        <span th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}">
-                        </span>
+                        <span th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}"></span>
                     </span>
                 </div>
             </div>
@@ -45,7 +44,6 @@
 
             <!-- ===============================
                  📝 CONTENT
-                 ※ 줄바꿈 유지용 utext
             =============================== -->
             <div class="notice-view-content"
                  th:utext="${#strings.replace(notice.content, '\n', '<br/>')}">
@@ -56,13 +54,22 @@
             =============================== -->
             <div class="notice-view-check">
 
-                <form th:action="@{/notice/check/{id}(id=${notice.noticeId})}"
+                <!-- ✅ 아직 체크 안 한 경우 -->
+                <form th:if="${!checked}"
+                      th:action="@{/notice/check/{id}(id=${notice.noticeId})}"
                       method="post">
                     <button type="submit"
                             class="action-btn primary">
-                        ✔ 確認済み
+                        ✔ 確認する
                     </button>
                 </form>
+
+                <!-- ✅ 이미 체크한 경우 -->
+                <button th:if="${checked}"
+                        class="action-btn disabled"
+                        disabled>
+                    ✓ 確認済み
+                </button>
 
                 <div class="check-count">
                     ✔ 確認数

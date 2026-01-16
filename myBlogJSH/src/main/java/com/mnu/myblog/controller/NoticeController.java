@@ -47,7 +47,7 @@ public class NoticeController {
         return "notice/list";
     }
 
-    /* ================= 공지 상세 (조회수) ================= */
+    /* ================= 공지 상세 (조회수 + 체크 여부) ================= */
 
     @GetMapping("/view/{noticeId}")
     public String view(
@@ -59,6 +59,7 @@ public class NoticeController {
 
         UserDTO loginUser = (UserDTO) session.getAttribute("loginUser");
 
+        /* ===== 조회수 : 로그인 + 하루 1회 ===== */
         if (loginUser != null) {
             String cookieName = "notice_view_" + noticeId;
             boolean viewed = false;
@@ -83,9 +84,28 @@ public class NoticeController {
             }
         }
 
+        /* ===== 체크 여부 판단 (null 방지 핵심) ===== */
+        boolean checked = false;
+
+        if (loginUser != null) {
+            String checkCookieName = "notice_check_" + noticeId + "_" + loginUser.getId();
+
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie c : cookies) {
+                    if (checkCookieName.equals(c.getName())) {
+                        checked = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         NoticeDTO notice = noticeService.getNotice(noticeId);
+
         model.addAttribute("notice", notice);
         model.addAttribute("loginUser", loginUser);
+        model.addAttribute("checked", checked); // ⭐ 반드시 항상 내려줌
 
         return "notice/view";
     }
