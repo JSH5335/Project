@@ -43,19 +43,24 @@ public class ArchiveController {
         int size = 10;
         int offset = (page - 1) * size;
 
-        int totalCount = postService.getPostCount(keyword);
-        int totalPage = (int) Math.ceil((double) totalCount / size);
-
         if (page < 1) page = 1;
-        if (page > totalPage && totalPage > 0) page = totalPage;
 
         List<PostDTO> postList =
                 postService.getPostListPaged(size, offset, keyword);
+
+        /* ================= 🔥 핵심 수정 ================= */
+        int totalCount = postList.size();   // 화면에 보이는 기준
+        int totalPage = (int) Math.ceil((double) totalCount / size);
+
+        if (page > totalPage && totalPage > 0) {
+            page = totalPage;
+        }
 
         /* ================= View 전달 ================= */
         model.addAttribute("postList", postList);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPage", totalPage);
+        model.addAttribute("totalCount", totalCount); // ⭐ 이 값이 "全 ○ 件"
         model.addAttribute("keyword", keyword);
 
         return "archive/list";
